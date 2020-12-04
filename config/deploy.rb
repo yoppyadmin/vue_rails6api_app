@@ -43,4 +43,17 @@ set :rbenv_type, :user
 set :rbenv_ruby, '2.6.6'
 set :rbenv_prefix, "RBENV_ROOT=#{fetch(:rbenv_path)} RBENV_VERSION=#{fetch(:rbenv_ruby)} #{fetch(:rbenv_path)}/bin/rbenv exec"
 
-append :linked_dirs, '.bundle'
+append :linked_dirs, 'log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', '.bundle'
+append :linked_files, 'config/database.yml', 'config/master.key'
+
+namespace :deploy do
+  namespace :check do
+    before :linked_files, :set_master_key do
+      on roles(:app), in: :sequence, wait: 10 do
+        unless test("[ -f #{shared_path}/config/master.key ]")
+          upload! 'backend/config/master.key', "#{shared_path}/config/master.key"
+        end
+      end
+    end
+  end
+end
