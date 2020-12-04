@@ -10,12 +10,13 @@ class AvatarUploader < CarrierWave::Uploader::Base
   # end
 
   def store_dir
+    "uploads_#{Rails.env}/#{model.class.to_s.underscore}/#{mounted_as}/#{model.id}" if Rails.env.production?
     if Rails.env.test?
       "uploads_#{Rails.env}/#{model.class.to_s.underscore}/#{mounted_as}/#{model.id}"
     elsif Rails.env.development?
       "uploads_#{Rails.env}/#{model.class.to_s.underscore}/#{mounted_as}/#{model.id}"
     end
-    "uploads_#{Rails.env}/#{model.class.to_s.underscore}/#{mounted_as}/#{model.id}"
+
   end
 
   def extension_whitelist
