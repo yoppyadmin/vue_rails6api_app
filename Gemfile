@@ -8,3 +8,4 @@ gem 'capistrano', "~> 3.14", require: false
 gem 'capistrano-rbenv'
 gem 'capistrano-bundler'
 gem "capistrano-rails", require: false
+gem 'capistrano3-puma'
