@@ -1,0 +1,34 @@
+# inherit_from: .rubocop_todo.yml
+
+require:
+  - rubocop-rails
+
+AllCops:
+  TargetRubyVersion: 2.6
+  Exclude:
+      - 'Gemfile'
+      - 'app/mailers/application_mailer.rb'
+      - 'bin/*'
+      - 'db/schema.rb'
+      - 'config/*'
+      - 'config/environments/*'
+      - 'config/initializers/cors.rb'
+      - 'spec/*_helper.rb'
+      - 'vendor/**/*'
+      - 'config.ru'
+      - 'Rakefile'
+
+Style/FrozenStringLiteralComment:
+    Enabled: false
+
+Style/Documentation:
+    Enabled: false
+
+Style/EmptyMethod:
+    EnforcedStyle: expanded
+
+Style/StringLiterals:
+    EnforcedStyle: double_quotes
+
+Metrics/AbcSize:
+    Max: 25

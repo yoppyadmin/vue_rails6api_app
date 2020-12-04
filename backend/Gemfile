@@ -1,0 +1,39 @@
+source 'https://rubygems.org'
+git_source(:github) { |repo| "https://github.com/#{repo}.git" }
+
+ruby '2.6.6'
+
+gem 'rails', '~> 6.0.3', '>= 6.0.3.4'
+gem 'mysql2', '>= 0.4.4'
+gem 'carrierwave'
+gem 'mini_magick'
+gem 'bcrypt'
+gem 'rails-i18n'
+gem 'faker'
+gem 'puma', '~> 4.1'
+gem 'jbuilder', '~> 2.7'
+gem 'bootsnap', '>= 1.4.2', require: false
+gem 'rack-cors'
+
+group :development, :test do
+  gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
+  gem 'rspec-rails'
+  gem 'factory_bot_rails'
+end
+
+group :development do
+  gem 'listen', '~> 3.2'
+  gem 'spring'
+  gem 'spring-watcher-listen', '~> 2.0.0'
+  gem 'spring-commands-rspec'
+  gem 'rubocop', require: false
+  gem 'rubocop-rails', require: false
+end
+
+group :test do
+  gem 'rspec_junit_formatter'
+end
+
+group :production do
+  gem 'fog-aws'
+end

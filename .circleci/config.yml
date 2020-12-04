@@ -1,0 +1,160 @@
+version: 2.1
+
+# orbs:
+#   aws-s3: circleci/aws-s3@1.0.16
+
+executors:
+  backend:
+    working_directory: ~/repo
+    docker:
+      - image: circleci/ruby:2.6.6-node-browsers
+        environment:
+          - RAILS_ENV: 'test'
+          - DB_DATABASE: 'ci_backend_test'
+          - DB_USERNAME: 'root'
+          - DB_PASSWORD: ''
+          - DB_HOST: 127.0.0.1
+      - image: circleci/mysql:5.7.32
+        environment:
+          - MYSQL_ALLOW_EMPTY_PASSWORD: 'true'
+  # frontend:
+  #   working_directory: ~/repo
+  #   docker:
+  #     - image: circleci/node:12.19.0
+  #     - image: circleci/python:3.8.6
+
+commands:
+  bundle_install:
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "./backend/Gemfile.lock" }}
+            - v1-dependencies-
+      # - restore_cache:
+      #     keys:
+      #       - v1-dependencies-{{ checksum "Gemfile.lock" }}
+      #       - v1-dependencies-
+      - run:
+          name: install dependencies
+          command: |
+            bundle install --jobs=4 --retry=3 --path vendor/bundle
+          working_directory: ./backend/
+      # - run:
+      #     name: install dependencies(capistrano)
+      #     command: |
+      #       bundle install --jobs=4 --retry=3 --path vendor/bundle
+      - save_cache:
+          paths:
+            - ./backend/vendor/bundle
+          key: v1-dependencies-{{ checksum "./backend/Gemfile.lock" }}
+      # - save_cache:
+      #     paths:
+      #       - vendor/bundle
+      #     key: v1-dependencies-{{ checksum "Gemfile.lock" }}
+  # npm_install:
+  #   steps:
+  #     - checkout
+  #     - restore_cache:
+  #         keys:
+  #           - v1-dependencies-{{ checksum "./frontend/package.json" }}
+  #           - v1-dependencies-
+  #     - run:
+  #         name: install dependencies
+  #         command: npm install
+  #         working_directory: ./frontend/
+  #     - save_cache:
+  #         paths:
+  #           - ./frontend/node_modules
+  #         key: dependency-cache-{{ checksum "./frontend/package.json" }}
+
+jobs:
+  test_backend:
+    executor: backend
+    environment:
+      RAILS_ENV: test
+    steps:
+      - bundle_install
+      - run:
+          name: wait for db
+          command: dockerize -wait tcp://localhost:3306 -timeout 1m
+          working_directory: ./backend/
+      - run:
+          command: bundle exec rails db:create
+          working_directory: ./backend/
+      - run:
+          command: bundle exec rails db:schema:load
+          working_directory: ./backend/
+      - run:
+          name: Rubocop
+          command: bundle exec rubocop
+          working_directory: ./backend/
+      - run:
+          name: RSpec
+          command: |
+            mkdir /tmp/test-results
+            TEST_FILES="$(circleci tests glob "spec/**/*_spec.rb" | \
+              circleci tests split --split-by=timings)"
+            bundle exec rspec \
+              --format progress \
+              --format RspecJunitFormatter \
+              --out /tmp/test-results/rspec.xml \
+              --format progress \
+              $TEST_FILES
+          working_directory: ./backend/
+
+      - store_test_results:
+          path: ./backend/tmp/test-results
+      - store_artifacts:
+          path: ./backend/tmp/test-results
+          destination: test-results
+  # test_frontend:
+  #   executor: frontend
+  #   steps:
+  #     - npm_install
+  #     - run:
+  #         command: npm run test
+  #         working_directory: ./frontend/
+
+
+  # deploy_backend:
+  #   executor: backend
+  #   steps:
+  #     - bundle_install
+  #     - add_ssh_keys:
+  #         fingerprints:
+  #           - "2d:3b:03:00:ec:66:08:90:ac:d0:ae:8c:87:c9:3b:ad"
+  #     - deploy:
+  #         name: Capistrano deploy
+  #         command: bundle exec cap production deploy
+  # deploy_frontend:
+  #   executor: frontend
+  #   steps:
+  #     - npm_install
+  #     - run:
+  #         name: build
+  #         command: VUE_APP_API_ORIGIN=$VUE_APP_API_ORIGIN npm run prod-build
+  #         working_directory: ./frontend/
+  #     - aws-s3/sync:
+  #         from: ./frontend/dist
+  #         to: s3://www.vue-rails6api-app.work
+  #         overwrite: true
+
+workflows:
+  test:
+  # test_and_deploy:
+    jobs:
+      - test_backend
+      # - test_frontend
+      # - deploy_backend:
+      #     requires:
+      #     - test_backend
+      #     filters:
+      #       branches:
+      #         only: master
+      # - deploy_frontend:
+      #     # requires:
+      #     # - test_frontend
+      #     filters:
+      #       branches:
+      #         only: master
