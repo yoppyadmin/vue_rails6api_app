@@ -5,9 +5,16 @@
     <div id="users-show">
       <h3>users#show</h3>
       <div>
-        <p>{{ user }}</p>
+        <p>{{ user.id }}</p>
+        <p>{{ user.name }}</p>
+        <p>{{ user.email }}</p>
+        <template v-if="user.avatar && node_env !== 'production'">
+          <img v-bind:src="'http://localhost:3000' + user.avatar.url">
+        </template>
+        <template v-else-if="user.avatar && node_env == 'production'">
+          <img v-bind:src="user.avatar.url">
+        </template>
       </div>
-      <p>deploy</p>
     </div>
   </div>
 </template>
@@ -21,6 +28,7 @@ export default {
     return {
       errorFlag: false,
       user: {},
+      node_env: process.env.NODE_ENV,
     }
   },
   mounted: function() { // -> GET, users#show
