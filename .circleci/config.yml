@@ -1,7 +1,7 @@
 version: 2.1
 
-# orbs:
-#   aws-s3: circleci/aws-s3@1.0.16
+orbs:
+  aws-s3: circleci/aws-s3@1.0.16
 
 executors:
   backend:
@@ -17,11 +17,11 @@ executors:
       - image: circleci/mysql:5.7.31
         environment:
           - MYSQL_ALLOW_EMPTY_PASSWORD: 'true'
-  # frontend:
-  #   working_directory: ~/repo
-  #   docker:
-  #     - image: circleci/node:12.19.0
-  #     - image: circleci/python:3.8.6
+  frontend:
+    working_directory: ~/repo
+    docker:
+      - image: circleci/node:14.15.1
+      - image: circleci/python:3.8.6
 
 commands:
   bundle_install:
@@ -52,21 +52,21 @@ commands:
           paths:
             - vendor/bundle
           key: v1-dependencies-{{ checksum "Gemfile.lock" }}
-  # npm_install:
-  #   steps:
-  #     - checkout
-  #     - restore_cache:
-  #         keys:
-  #           - v1-dependencies-{{ checksum "./frontend/package.json" }}
-  #           - v1-dependencies-
-  #     - run:
-  #         name: install dependencies
-  #         command: npm install
-  #         working_directory: ./frontend/
-  #     - save_cache:
-  #         paths:
-  #           - ./frontend/node_modules
-  #         key: dependency-cache-{{ checksum "./frontend/package.json" }}
+  npm_install:
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "./frontend/package.json" }}
+            - v1-dependencies-
+      - run:
+          name: install dependencies
+          command: npm install
+          working_directory: ./frontend/
+      - save_cache:
+          paths:
+            - ./frontend/node_modules
+          key: dependency-cache-{{ checksum "./frontend/package.json" }}
 
 jobs:
   test_backend:
@@ -127,18 +127,18 @@ jobs:
       - deploy:
           name: Capistrano deploy
           command: bundle exec cap production deploy
-  # deploy_frontend:
-  #   executor: frontend
-  #   steps:
-  #     - npm_install
-  #     - run:
-  #         name: build
-  #         command: VUE_APP_API_ORIGIN=$VUE_APP_API_ORIGIN npm run prod-build
-  #         working_directory: ./frontend/
-  #     - aws-s3/sync:
-  #         from: ./frontend/dist
-  #         to: s3://www.vue-rails6api-app.work
-  #         overwrite: true
+  deploy_frontend:
+    executor: frontend
+    steps:
+      - npm_install
+      - run:
+          name: build
+          command: VUE_APP_API_ORIGIN=$VUE_APP_API_ORIGIN npm run prod-build
+          working_directory: ./frontend/
+      - aws-s3/sync:
+          from: ./frontend/dist
+          to: s3://www.vue-rails6api-app.work
+          overwrite: true
 
 workflows:
   test_and_deploy:
@@ -151,9 +151,9 @@ workflows:
           filters:
             branches:
               only: master
-      # - deploy_frontend:
-      #     # requires:
-      #     # - test_frontend
-      #     filters:
-      #       branches:
-      #         only: master
+      - deploy_frontend:
+          # requires:
+          # - test_frontend
+          filters:
+            branches:
+              only: master
