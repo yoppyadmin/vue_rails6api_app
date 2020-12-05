@@ -9,6 +9,7 @@ if Rails.env.production?
       region: "ap-northeast-1"
     }
     config.fog_directory = "image.vue-rails6api-app.work"
+    config.fog_public = false
     config.asset_host = "https://image.vue-rails6api-app.work"
   end
 end
