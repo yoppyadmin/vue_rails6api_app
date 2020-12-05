@@ -7,6 +7,7 @@
       <div>
         <p>{{ user }}</p>
       </div>
+      <p>deploy</p>
     </div>
   </div>
 </template>
