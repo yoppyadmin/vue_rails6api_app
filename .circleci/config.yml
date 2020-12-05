@@ -31,27 +31,15 @@ commands:
           keys:
             - v1-dependencies-{{ checksum "./backend/Gemfile.lock" }}
             - v1-dependencies-
-      # - restore_cache:
-      #     keys:
-      #       - v1-dependencies-{{ checksum "Gemfile.lock" }}
-      #       - v1-dependencies-
       - run:
           name: install dependencies
           command: |
             bundle install --jobs=4 --retry=3 --path vendor/bundle
           working_directory: ./backend/
-      # - run:
-      #     name: install dependencies(capistrano)
-      #     command: |
-      #       bundle install --jobs=4 --retry=3 --path vendor/bundle
       - save_cache:
           paths:
             - ./backend/vendor/bundle
           key: v1-dependencies-{{ checksum "./backend/Gemfile.lock" }}
-      # - save_cache:
-      #     paths:
-      #       - vendor/bundle
-      #     key: v1-dependencies-{{ checksum "Gemfile.lock" }}
   # npm_install:
   #   steps:
   #     - checkout
@@ -117,16 +105,16 @@ jobs:
   #         working_directory: ./frontend/
 
 
-  # deploy_backend:
-  #   executor: backend
-  #   steps:
-  #     - bundle_install
-  #     - add_ssh_keys:
-  #         fingerprints:
-  #           - "2d:3b:03:00:ec:66:08:90:ac:d0:ae:8c:87:c9:3b:ad"
-  #     - deploy:
-  #         name: Capistrano deploy
-  #         command: bundle exec cap production deploy
+  deploy_backend:
+    executor: backend
+    steps:
+      - bundle_install
+      - add_ssh_keys:
+          fingerprints:
+            - "2d:85:27:36:83:8f:ac:09:e5:94:51:13:cd:1d:f1:1d"
+      - deploy:
+          name: Capistrano deploy
+          command: bundle exec cap production deploy
   # deploy_frontend:
   #   executor: frontend
   #   steps:
@@ -141,17 +129,16 @@ jobs:
   #         overwrite: true
 
 workflows:
-  test:
-  # test_and_deploy:
+  test_and_deploy:
     jobs:
       - test_backend
       # - test_frontend
-      # - deploy_backend:
-      #     requires:
-      #     - test_backend
-      #     filters:
-      #       branches:
-      #         only: master
+      - deploy_backend:
+          requires:
+          - test_backend
+          filters:
+            branches:
+              only: master
       # - deploy_frontend:
       #     # requires:
       #     # - test_frontend
