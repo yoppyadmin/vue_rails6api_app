@@ -6,13 +6,14 @@
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
 
-# avatar = File.open(Rails.root.join("public/default.png"))
+red_avatar = File.open(Rails.root.join("public/red_avatar.jpeg"))
+blue_avatar = File.open(Rails.root.join("public/blue_avatar.jpeg"))
 User.create!(
   name: "hogehoge",
   email: "hoge@hoge.com",
   password: "hogehoge",
   password_confirmation: "hogehoge",
-  avatar: File.open(Rails.root.join("public/default.png")),
+  avatar: red_avatar,
   admin: true
 )
 
@@ -25,6 +26,6 @@ User.create!(
     email: email,
     password: password,
     password_confirmation: password,
-    avatar: File.open(Rails.root.join("public/default.png"))
+    avatar: blue_avatar
   )
 end
