@@ -16,8 +16,9 @@ log
 !/backend/storage/.keep
 /backend/.byebug_history
 /backend/config/master.key
-/backend/public/uploads/tmp/
-/backend/public/uploads_development/
+/backend/public/uploads/tmp
+/backend/public/uploads_development/user/avatar
+/backend/public/seed_development
 /backend/.gitignore
 
 # frontend
