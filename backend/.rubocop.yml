@@ -4,6 +4,7 @@ require:
   - rubocop-rails
 
 AllCops:
+  NewCops: enable
   TargetRubyVersion: 2.6
   Exclude:
       - 'Gemfile'
@@ -18,17 +19,37 @@ AllCops:
       - 'config.ru'
       - 'Rakefile'
 
-Style/FrozenStringLiteralComment:
+Style/FrozenStringLiteralComment: # 変数をmutable(=変更できる)な値に定義
     Enabled: false
 
-Style/Documentation:
+Style/Documentation: # classやmoduleのトップレベルのドキュメントをチェック
     Enabled: false
 
-Style/EmptyMethod:
+Style/EmptyMethod: #空メソッドのフォーマット
     EnforcedStyle: expanded
 
-Style/StringLiterals:
+Style/StringLiterals: # 文字列を囲むクォーテーション
     EnforcedStyle: double_quotes
 
-Metrics/AbcSize:
-    Max: 30
+Style/AsciiComments: # 日本語のコメント
+  Enabled: false
+
+Metrics/AbcSize: # 代入(A)、メソッド呼び出し(B)、条件式(C)の数を数え、それぞれの2乗の和の平方根の大きさ
+    Max: 24
+
+Metrics/MethodLength: # メソッドの長さ
+    Max: 20
+
+Layout/IndentationConsistency: # private, protected配下のメソッドのインデント
+    EnforcedStyle: indented_internal_methods
+
+Style/RegexpLiteral: # 正規表現の記法 %r or / /
+    Enabled: false
+
+Style/SymbolArray: # シンボルの記法 %i or [ ]
+    Enabled: false
+
+Style/PercentLiteralDelimiters: # %記法の区切り文字を指定
+  PreferredDelimiters:
+    default: '[]'
+    # '%w': '()'  ex) %w(_ -) -> ["_", "-"]

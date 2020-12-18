@@ -1,0 +1,194 @@
+<template>
+  <div>
+    <!-- xs sm -->
+    <v-toolbar-items class="d-md-none d-lg-none d-xl-none">
+      <v-card class="grey darken-4" flat>
+        <v-menu offset-y>
+          <template v-slot:activator="{on}">
+            <v-btn v-on="on" text><v-icon class="grey--text text--lighten-2">mdi-dots-horizontal</v-icon></v-btn>
+          </template>
+          <v-list class="mt-1">
+            <v-subheader>menu</v-subheader>
+            <v-list-item v-for="toolbar_list in toolbar_lists" :key="toolbar_list.name" :to="toolbar_list.link" exact>
+              <v-list-item-icon>
+                <v-icon v-text="toolbar_list.icon"></v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title v-text="toolbar_list.name"></v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item v-on:click="logoutUser()" exact>
+              <v-list-item-icon>
+                <v-icon v-text="toolbar_list_logout.icon"></v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title v-text="toolbar_list_logout.name"></v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </v-card>
+      <v-card class="grey darken-4" flat>
+        <v-menu offset-y>
+          <template v-slot:activator="{on}">
+            <div>
+              <template v-if="currentUser.avatar && node_env !== 'production'">
+                <v-avatar size="36">
+                  <img v-on="on" v-bind:src="axiosDefaultsBaseURL + currentUser.avatar.url" style="cursor: pointer;">
+                </v-avatar>
+              </template>
+              <template  v-else-if="currentUser.avatar && node_env == 'production'" style="cursor: pointer;">
+                <v-avatar size="36">
+                  <img v-on="on" v-bind:src="currentUser.avatar.url">
+                </v-avatar>
+              </template>
+            </div>
+          </template>
+          <v-list nav class="mt-1">
+            <v-subheader>menu</v-subheader>
+            <v-list-item v-for="nav_list in nav_lists" :key="nav_list.name" :to="nav_list.link" exact>
+              <v-list-item-icon>
+                <v-icon v-text="nav_list.icon"></v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title v-text="nav_list.name"></v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </v-card>
+    </v-toolbar-items>
+
+    <!-- md lg xl -->
+    <v-toolbar-items class="d-none d-sm-none d-md-flex">
+      <v-card class="grey darken-4" flat>
+        <router-link
+          to="/users"
+          active-class="link--active"
+          exact
+          class="link"
+        ><v-btn class="grey darken-4"><span class="grey--text text--lighten-5">ユーザー一覧画面</span></v-btn></router-link>
+      </v-card>
+      <v-card class="grey darken-4" flat>
+        <router-link
+          v-bind:to="'/users/' + currentUser.id"
+          active-class="link--active"
+          exact
+          class="link"
+        ><v-btn class="grey darken-4"><span class="grey--text text--lighten-5">ユーザー詳細画面</span></v-btn></router-link>
+      </v-card>
+      <v-card class="grey darken-4" flat>
+        <router-link
+          v-bind:to="'/users/' + currentUser.id + '/edit'"
+          active-class="link--active"
+          exact
+          class="link"
+        ><v-btn class="grey darken-4"><span class="grey--text text--lighten-5">ユーザー編集画面</span></v-btn></router-link>
+      </v-card>
+      <v-card class="grey darken-4" flat>
+        <v-btn v-on:click="logoutUser()" class="grey darken-4">
+          <span class="grey--text text--lighten-5">ログアウト | {{ currentUser.name }}</span>
+        </v-btn>
+      </v-card>
+      <v-card class="grey darken-4" flat>
+        <v-menu offset-y>
+          <template v-slot:activator="{on}">
+            <div>
+              <template v-if="currentUser.avatar && node_env !== 'production'">
+                <v-avatar size="36">
+                  <img v-on="on" v-bind:src="axiosDefaultsBaseURL + currentUser.avatar.url" style="cursor: pointer;">
+                </v-avatar>
+              </template>
+              <template  v-else-if="currentUser.avatar && node_env == 'production'" style="cursor: pointer;">
+                <v-avatar size="36">
+                  <img v-on="on" v-bind:src="currentUser.avatar.url">
+                </v-avatar>
+              </template>
+            </div>
+          </template>
+          <v-list nav class="mt-1">
+            <v-subheader>menu</v-subheader>
+            <v-list-item v-for="nav_list in nav_lists" :key="nav_list.name" :to="nav_list.link" exact color="primary">
+              <v-list-item-icon>
+                <v-icon v-text="nav_list.icon"></v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title v-text="nav_list.name"></v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </v-card>
+
+      <!-- <v-card class="d-flex justify-space-around align-center grey darken-4" flat>
+        <router-link
+          v-bind:to="'/users/' + currentUser.id"
+          active-class="link--active"
+          exact
+          class="link"
+        >
+          <template v-if="currentUser.avatar && node_env !== 'production'">
+            <v-avatar size="36">
+              <img v-bind:src="axiosDefaultsBaseURL + currentUser.avatar.url">
+            </v-avatar>
+          </template>
+          <template v-else-if="currentUser.avatar && node_env == 'production'">
+            <v-avatar size="36">
+              <img v-bind:src="currentUser.avatar.url">
+            </v-avatar>
+          </template>
+        </router-link>
+      </v-card> -->
+    </v-toolbar-items>
+  </div>
+</template>
+
+<script>
+import axios from 'axios';
+
+export default {
+  props: ['isAuthenticated', 'currentUser'],
+  data: function() {
+    return {
+      lououtUserMessage: '',
+      errorFlag: false,
+      node_env: process.env.NODE_ENV,
+      axiosDefaultsBaseURL: axios.defaults.baseURL,
+      toolbar_lists: [
+        { name: 'ユーザー一覧画面', link: '/users', icon: 'mdi-format-list-bulleted' },
+        { name: 'ユーザー詳細画面', link: '/users/' + this.currentUser.id, icon: 'mdi-account' },
+        { name: 'ユーザー編集画面', link: '/users/' + this.currentUser.id + '/edit', icon: 'mdi-account-edit' }
+      ],
+      toolbar_list_logout: { name: 'ログアウト | ' + this.currentUser.name, icon: 'mdi-logout' },
+      nav_lists: [
+        { name: 'ユーザー情報画面', link: '/users/' + this.currentUser.id, icon: 'mdi-account' },
+        { name: 'ユーザー情報編集', link: '/users/' + this.currentUser.id + '/edit', icon: 'mdi-account-edit'},
+        { name: 'アイコン画像編集', link: '/users/' + this.currentUser.id + '/edit/avatar', icon: 'mdi-account-circle'}
+      ]
+    }
+  },
+  methods: {
+    logoutUser: function() { // -> DELETE, sessions#destroy
+      const self = this;
+      axios
+        .delete('/api/v1/logout')
+        .then(function(response) {
+          self.lououtUserMessage = response.data.message;
+          self.$store.commit('flashMessage', self.lououtUserMessage)
+          self.$router.push('/login');
+          console.log(response);
+        })
+        .catch(function(error) {
+          self.errorFlag = true;
+          console.log(error);
+        })
+    }
+  },
+}
+</script>
+
+<style lang="scss" scoped>
+  .link {
+    text-decoration: none;
+  }
+</style>
