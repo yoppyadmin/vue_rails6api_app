@@ -8,7 +8,7 @@ if Rails.env.production?
       aws_secret_access_key: Rails.application.credentials.aws[:secret_access_key],
       region: "ap-northeast-1"
     }
-    config.fog_directory = "image.vue-rails6api-app.work"
+    config.fog_directory = "image-vue-rails6api-app-work"
     config.asset_host = "https://image.vue-rails6api-app.work"
   end
 end
