@@ -1,10 +1,10 @@
 url = "http://robohash.org/1.png"
-fileName = File.basename(url) # -> "1.png"
-dirName = "#{Rails.root}/public/seed_#{Rails.env}/" # -> "/app/backend/public/test/"
-filePath = dirName + fileName # -> "/app/backend/public/test/1.png"
-FileUtils.mkdir_p(dirName) unless FileTest.exist?(dirName)
-open(filePath, 'wb') do |output|
-  open(url) do |data|
+file_name = File.basename(url) # -> "1.png"
+dir_name = Rails.root.join("public/seed_#{Rails.env}/").to_s # -> "/app/backend/public/test/"
+file_path = dir_name + file_name # -> "/app/backend/public/test/1.png"
+FileUtils.mkdir_p(dir_name) unless FileTest.exist?(dir_name)
+File.open(file_path, "wb") do |output|
+  URI.parse(url).open do |data|
     output.write(data.read)
   end
 end
@@ -13,7 +13,7 @@ User.create!(
   email: "hoge@hoge.com",
   password: "hogehoge",
   password_confirmation: "hogehoge",
-  avatar: File.open(Rails.root.join(filePath)),
+  avatar: File.open(Rails.root.join(file_path)),
   admin: true
 )
 
@@ -22,12 +22,12 @@ User.create!(
   email = "example-#{n}@example.com"
   password = "password"
   url = "http://robohash.org/#{n}.png"
-  fileName = File.basename(url)
-  dirName = "#{Rails.root}/public/seed_#{Rails.env}/"
-  filePath = dirName + fileName
-  FileUtils.mkdir_p(dirName) unless FileTest.exist?(dirName)
-  open(filePath, 'wb') do |output|
-    open(url) do |data|
+  file_name = File.basename(url)
+  dir_name = Rails.root.join("public/seed_#{Rails.env}/").to_s
+  file_path = dir_name + file_name
+  FileUtils.mkdir_p(dir_name) unless FileTest.exist?(dir_name)
+  File.open(file_path, "wb") do |output|
+    URI.parse(url).open do |data|
       output.write(data.read)
     end
   end
@@ -36,7 +36,7 @@ User.create!(
     email: email,
     password: password,
     password_confirmation: password,
-    avatar: File.open(Rails.root.join(filePath))
+    avatar: File.open(Rails.root.join(file_path))
   )
 end
 
