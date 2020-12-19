@@ -26,11 +26,11 @@ module Api
 
       def create
         user = User.new(user_params)
-        user.avatar = File.open(Rails.root.join("public/default.png"))
+        user.avatar = File.open(Rails.root.join("public/default.jpeg"))
         if user.save
+          log_in(user)
           # account = user.build_account(account_number: user.id)
           # account.save
-          # session[:user_id] = user.id
           render json: { message: "ユーザー作成に成功しました", user: user }
         else
           render json: { message: "ユーザー作成に失敗しました", errors: user.errors }
@@ -61,6 +61,10 @@ module Api
 
         def user_params
           params.require(:user).permit(:name, :email, :password, :password_confirmation, :avatar)
+        end
+
+        def log_in(user)
+          session[:user_id] = user.id
         end
 
         # ログインしているユーザーがいない場合、ステータスコード401を返す
