@@ -1,4 +1,4 @@
-url = "http://robohash.org/1.png"
+url = Faker::Avatar.image(slug: 1, format: "jpg").split(/\?/).first
 file_name = File.basename(url) # -> "1.png"
 dir_name = Rails.root.join("public/seed_#{Rails.env}/").to_s # -> "/app/backend/public/test/"
 file_path = dir_name + file_name # -> "/app/backend/public/test/1.png"
@@ -21,7 +21,7 @@ User.create!(
   name  = Faker::Internet.username(specifier: 6..20, separators: %w[_ -])
   email = "example-#{n}@example.com"
   password = "password"
-  url = "http://robohash.org/#{n}.png"
+  url = Faker::Avatar.image(slug: n, format: "jpg").split(/\?/).first
   file_name = File.basename(url)
   dir_name = Rails.root.join("public/seed_#{Rails.env}/").to_s
   file_path = dir_name + file_name
