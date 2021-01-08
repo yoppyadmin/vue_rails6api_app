@@ -37,8 +37,11 @@ Style/AsciiComments: # 日本語のコメント
 Metrics/AbcSize: # 代入(A)、メソッド呼び出し(B)、条件式(C)の数を数え、それぞれの2乗の和の平方根の大きさ
     Max: 24
 
+Metrics/ClassLength: # クラスの長さ
+    Max: 110
+
 Metrics/MethodLength: # メソッドの長さ
-    Max: 20
+    Max: 26
 
 Layout/IndentationConsistency: # private, protected配下のメソッドのインデント
     EnforcedStyle: indented_internal_methods
@@ -53,3 +56,12 @@ Style/PercentLiteralDelimiters: # %記法の区切り文字を指定
   PreferredDelimiters:
     default: '[]'
     # '%w': '()'  ex) %w(_ -) -> ["_", "-"]
+
+Style/SymbolProc: # something.map { |s| s.upcase }
+    Enabled: false
+
+Naming/VariableNumber:
+    EnforcedStyle: snake_case
+
+Rails/InverseOf:
+    Enabled: false

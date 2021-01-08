@@ -1,14 +1,16 @@
 <template>
   <div>
     <transition name="fade">
-      <v-alert
-        v-if="alert"
-        border="bottom"
-        color="indigo darken-4 grey--text text--lighten-2"
-        dense
-      >
-        {{ message }}
-      </v-alert>
+      <v-card class="d-flex justify-end px-0 py-0 mx-0 my-0" v-if="alert" style="z-index: 1;">
+        <v-alert
+          class="my-1 mx-1 "
+          v-bind:type="style"
+          dense
+          style="position: fixed;"
+        >
+          {{ message }}
+        </v-alert>
+      </v-card>
     </transition>
   </div>
 </template>
@@ -21,6 +23,9 @@ export default {
     },
     message: function() {
       return this.$store.state.message;
+    },
+    style: function() {
+      return this.$store.state.style;
     }
   }
 }

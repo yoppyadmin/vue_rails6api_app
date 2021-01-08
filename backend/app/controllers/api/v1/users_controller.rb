@@ -7,17 +7,39 @@ module Api
 
       def index
         users = User.all.order(created_at: :DESC)
-        render json: { users: users, user: @current_user }
+        render json: { users: users, auth_user: @current_user }
       end
 
       def show
         user = User.find(params[:id])
-        render json: { user: user }
+        user_posts_join_quantities_created_at_desc = Post.joins(:user, :quantity).select('
+          posts.*,
+          users.avatar,
+          quantities.quantity_list_1,
+          quantities.quantity_list_2,
+          quantities.quantity_list_3,
+          quantities.quantity_list_4
+        ').order(created_at: :DESC).where(user_id: user.id)
+        if @current_user
+          current_user_posts = @current_user.posts
+          current_user_posts_id = current_user_posts.map { |post| post.id }
+          current_user_votes = @current_user.votes
+          current_user_voted_posts_id = current_user_votes.eager_load(:post).map { |vote| vote.post.id }
+          render json: {
+            user: user,
+            posts: user_posts_join_quantities_created_at_desc,
+            auth_user: @current_user,
+            current_user_posts_id: current_user_posts_id,
+            current_user_voted_posts_id: current_user_voted_posts_id
+          }
+        else
+          render json: { user: user, posts: user_posts_join_quantities_created_at_desc }
+        end
       end
 
       def new
         if @current_user
-          render json: { user: @current_user }
+          render json: { auth_user: @current_user }
         else
           user = User.new
           render json: { user: user }
@@ -28,9 +50,9 @@ module Api
         user = User.new(user_params)
         user.avatar = File.open(Rails.root.join("public/default.jpeg"))
         if user.save
+          account = user.build_account(account_number: user.id)
+          account.save
           log_in(user)
-          # account = user.build_account(account_number: user.id)
-          # account.save
           render json: { message: "ユーザー作成に成功しました", user: user }
         else
           render json: { message: "ユーザー作成に失敗しました", errors: user.errors }
@@ -38,14 +60,14 @@ module Api
       end
 
       def edit
-        render json: { user: @current_user }
+        render json: { auth_user: @current_user }
       end
 
       def update
         if @current_user.update(user_params)
-          render json: { message: "ユーザー情報の編集に成功しました", user: @current_user }
+          render json: { message: "ユーザー情報の編集に成功しました", auth_user: @current_user }
         else
-          render json: { message: "ユーザー情報の編集に失敗しました", user: @current_user, errors: @current_user.errors }
+          render json: { message: "ユーザー情報の編集に失敗しました", auth_user: @current_user, errors: @current_user.errors }
         end
       end
 
@@ -53,6 +75,7 @@ module Api
         user = User.find(params[:id])
         delete_user_id = user.id
         user.destroy
+
         users = User.all.order(created_at: :DESC)
         render json: { message: "ユーザー#{delete_user_id}を削除しました", users: users }
       end
@@ -71,7 +94,8 @@ module Api
         def logged_in_user
           return if @current_user
 
-          session[:forwarding_url] = request.fullpath if request.get? # 送信されたリクエストがGETリクエストの場合、パスを保存
+          # 送信されたリクエストがGETリクエストの場合、パスを保存 → '/users' or '/users/:id/edit'
+          session[:forwarding_url] = request.fullpath if request.get?
           render json: { status: 401, message: "Unauthorized" }
         end
 

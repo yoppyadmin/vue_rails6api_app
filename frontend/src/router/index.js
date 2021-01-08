@@ -6,11 +6,9 @@ import UsersIndex from '../views/UsersIndex.vue'
 import UsersShow from '../views/UsersShow.vue'
 import Signup from '../views/Signup.vue'
 import UsersEdit from '../views/UsersEdit.vue'
-import UsersAvatarEdit from '../views/UsersAvatarEdit.vue'
+import UsersEditAvatar from '../views/UsersEditAvatar.vue'
+import PostsShow from '../views/PostsShow.vue'
 import Login from '../views/Login.vue'
-
-import Example from '../views/Example.vue'
-
 
 Vue.use(VueRouter)
 
@@ -43,17 +41,17 @@ const routes = [
   },
   {
     path: '/users/:id/edit/avatar',
-    component: UsersAvatarEdit,
+    component: UsersEditAvatar,
+    props: true
+  },
+  {
+    path: '/posts/:id',
+    component: PostsShow,
     props: true
   },
   {
     path: '/login',
     component: Login
-  },
-
-  {
-    path: '/example',
-    component: Example
   }
 ]
 

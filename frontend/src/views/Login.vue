@@ -1,12 +1,7 @@
 <template>
   <div>
     <p>sessions#new, sessions#create</p>
-    <hr>
-    <v-btn v-on:click="showSession">notLoggedInUser</v-btn>
-    <v-btn v-on:click="showUser">loggedInUser</v-btn>
-    <p v-show="errorFlag">サーバとの通信にエラーが発生しています</p>
     <div id="login">
-
       <v-container>
         <v-row>
           <v-col cols="12" sm="8" md="6" class="mx-auto">
@@ -20,7 +15,7 @@
                     <ValidationProvider name="メールアドレス" rules="required|loginMailAddress" v-slot="{ errors }">
                     <v-text-field
                       prepend-icon="mdi-email"
-                      v-model="notLoggedInUser.email"
+                      v-model="unauthUser.email"
                       :error-messages="errors"
                       outlined
                       dense
@@ -31,7 +26,7 @@
                     <v-text-field
                       prepend-icon="mdi-lock"
                       v-bind:append-icon="showLoginPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                      v-model="notLoggedInUser.password"
+                      v-model="unauthUser.password"
                       :error-messages="errors"
                       outlined
                       dense
@@ -42,8 +37,8 @@
                       color="teal lighten-2"
                     ></v-text-field></ValidationProvider>
                     <v-checkbox
-                      v-model="notLoggedInUser.remember_me"
-                      id="not_logged_in_user_remember_me"
+                      v-model="unauthUser.remember_me"
+                      id="unauth_user_remember_me"
                       label="ログイン情報を保存する"
                     ></v-checkbox>
                     <v-card-actions>
@@ -56,7 +51,6 @@
           </v-col>
         </v-row>
       </v-container>
-
     </div>
   </div>
 </template>
@@ -87,9 +81,8 @@ export default {
   },
   data: function() {
     return {
-      notLoggedInUser: {},
-      loggedInUser: {},
-      errorFlag: false,
+      unauthUser: {},
+      authUser: {},
       showLoginPassword: false,
       successLoginMessage: '',
       failureLoginMessage: '',
@@ -100,9 +93,9 @@ export default {
     axios
       .get('/api/v1/login')
       .then(function(response) {
-        if (response.data.logged_in_user) { // logged_in_userが存在する場合にルート画面へルーティング
+        if (response.data.auth_user) { // logged_in_userが存在する場合にルート画面へルーティング
           next('/');
-        } else if (response.data.not_logged_in_user){ // logged_in_userが存在しない場合にログイン画面へルーティング
+        } else if (response.data.unauth_user){ // logged_in_userが存在しない場合にログイン画面へルーティング
           next();
         }
         console.log(response);
@@ -114,61 +107,49 @@ export default {
   methods: {
     loginUser: function() { // -> POST, sessions#create
       const self = this
-      const rememberMe = document.getElementById('not_logged_in_user_remember_me');
+      const rememberMe = document.getElementById('unauth_user_remember_me');
       if (rememberMe.checked) {
-        self.notLoggedInUser.remember_me = true
+        self.unauthUser.remember_me = true
       } else {
-        self.notLoggedInUser.remember_me = false
+        self.unauthUser.remember_me = false
       }
       axios
         .post('/api/v1/login', {
           session: {
-            email: self.notLoggedInUser.email,
-            password: self.notLoggedInUser.password,
-            remember_me: self.notLoggedInUser.remember_me
+            email: self.unauthUser.email,
+            password: self.unauthUser.password,
+            remember_me: self.unauthUser.remember_me
           }
         })
         .then(function(response) {
           if ((response.data.message === "ログインに成功しました") && (self.successLoginMessage = response.data.message)) {
-            self.loggedInUser = response.data.logged_in_user;
-            self.$store.commit('flashMessage', self.successLoginMessage)
-            response.data.path ? self.$router.push('/' + response.data.path) : self.$router.push('/users/' + self.loggedInUser.id)
+            self.$store.dispatch('flashMessage', { message: self.successLoginMessage, type: "success"});
+            self.authUser = response.data.auth_user;
+            response.data.path ? self.$router.push('/' + response.data.path) : self.$router.push('/')
           } else if((response.data.message === "ログインに失敗しました") && (self.failureLoginMessage = response.data.message)) {
+            self.$store.dispatch('flashMessage', { message: self.failureLoginMessage, type: "error"});
             self.loginErrors = response.data.errors;
-            self.$store.commit('flashMessage', self.failureLoginMessage)
-            self.notLoggedInUser.email = '';
-            self.notLoggedInUser.password = '';
+            self.unauthUser = {};
             rememberMe.checked = false;
           }
           console.log(response);
         })
         .catch(function(error) {
-          self.errorFlag = true;
+          self.$store.dispatch('flashMessage', { message: "サーバーとの通信にエラーが発生しています", type: "warning"});
           console.log(error);
         })
-    },
-    showSession: function() {
-      console.log(this.notLoggedInUser);
-    },
-    showUser: function() {
-      console.log(this.loggedInUser);
     }
   },
-  mounted: function() { // -> GET, sessions#new
+  created: function() {
     const self = this;
     axios
-      .get('/api/v1/login')
+      .get('/api/v1/login') // -> GET, sessions#new
       .then(function(response) {
-        if((response.data.not_logged_in_user)) { // ユーザーがログインしていない場合
-          self.notLoggedInUser = response.data.not_logged_in_user;
-          console.log(response);
-        } else if(response.data.logged_in_user) {  // ユーザーがログインしている場合
-          self.loggedInUser = response.data.logged_in_user;
-          console.log(response);
-        }
+        self.unauthUser = response.data.unauth_user;
+        console.log(response);
       })
       .catch(function(error) {
-        self.errorFlag = true;
+        self.$store.dispatch('flashMessage', { message: "サーバーとの通信にエラーが発生しています", type: "warning"});
         console.log(error);
       })
   }

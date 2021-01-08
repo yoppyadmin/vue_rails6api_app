@@ -1,4 +1,13 @@
 class User < ApplicationRecord
+  has_one :account, dependent: :destroy
+  has_many :posts, dependent: :destroy
+  has_many :votes, dependent: :destroy
+
+  has_many :follower, class_name: "Relationship", foreign_key: "follower_id", dependent: :destroy # フォローする人
+  has_many :followed, class_name: "Relationship", foreign_key: "followed_id", dependent: :destroy # フォローされる人
+  # has_many :following, through: :follower, source: :followed # フォローする人の集合
+  # has_many :followers, through: :followed, source: :follower # フォローされる人の集合
+
   attr_accessor :remember_token
 
   mount_uploader :avatar, AvatarUploader

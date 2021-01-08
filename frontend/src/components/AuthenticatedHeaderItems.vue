@@ -32,14 +32,14 @@
         <v-menu offset-y>
           <template v-slot:activator="{on}">
             <div>
-              <template v-if="currentUser.avatar && node_env !== 'production'">
+              <template v-if="authUser.avatar && node_env !== 'production'">
                 <v-avatar size="36">
-                  <img v-on="on" v-bind:src="axiosDefaultsBaseURL + currentUser.avatar.url" style="cursor: pointer;">
+                  <v-img v-on="on" v-bind:src="axiosDefaultsBaseURL + authUser.avatar.url" style="cursor: pointer;"></v-img>
                 </v-avatar>
               </template>
-              <template  v-else-if="currentUser.avatar && node_env == 'production'" style="cursor: pointer;">
+              <template  v-else-if="authUser.avatar && node_env == 'production'" style="cursor: pointer;">
                 <v-avatar size="36">
-                  <img v-on="on" v-bind:src="currentUser.avatar.url">
+                  <v-img v-on="on" v-bind:src="authUser.avatar.url"></v-img>
                 </v-avatar>
               </template>
             </div>
@@ -71,7 +71,7 @@
       </v-card>
       <v-card class="grey darken-4" flat>
         <router-link
-          v-bind:to="'/users/' + currentUser.id"
+          v-bind:to="'/users/' + authUser.id"
           active-class="link--active"
           exact
           class="link"
@@ -79,7 +79,7 @@
       </v-card>
       <v-card class="grey darken-4" flat>
         <router-link
-          v-bind:to="'/users/' + currentUser.id + '/edit'"
+          v-bind:to="'/users/' + authUser.id + '/edit'"
           active-class="link--active"
           exact
           class="link"
@@ -87,21 +87,21 @@
       </v-card>
       <v-card class="grey darken-4" flat>
         <v-btn v-on:click="logoutUser()" class="grey darken-4">
-          <span class="grey--text text--lighten-5">ログアウト | {{ currentUser.name }}</span>
+          <span class="grey--text text--lighten-5">ログアウト | {{ authUser.name }}</span>
         </v-btn>
       </v-card>
       <v-card class="grey darken-4" flat>
         <v-menu offset-y>
           <template v-slot:activator="{on}">
             <div>
-              <template v-if="currentUser.avatar && node_env !== 'production'">
+              <template v-if="authUser.avatar && node_env !== 'production'">
                 <v-avatar size="36">
-                  <img v-on="on" v-bind:src="axiosDefaultsBaseURL + currentUser.avatar.url" style="cursor: pointer;">
+                  <v-img v-on="on" v-bind:src="axiosDefaultsBaseURL + authUser.avatar.url" style="cursor: pointer;"></v-img>
                 </v-avatar>
               </template>
-              <template  v-else-if="currentUser.avatar && node_env == 'production'" style="cursor: pointer;">
+              <template  v-else-if="authUser.avatar && node_env == 'production'" style="cursor: pointer;">
                 <v-avatar size="36">
-                  <img v-on="on" v-bind:src="currentUser.avatar.url">
+                  <v-img v-on="on" v-bind:src="authUser.avatar.url"></v-img>
                 </v-avatar>
               </template>
             </div>
@@ -119,26 +119,6 @@
           </v-list>
         </v-menu>
       </v-card>
-
-      <!-- <v-card class="d-flex justify-space-around align-center grey darken-4" flat>
-        <router-link
-          v-bind:to="'/users/' + currentUser.id"
-          active-class="link--active"
-          exact
-          class="link"
-        >
-          <template v-if="currentUser.avatar && node_env !== 'production'">
-            <v-avatar size="36">
-              <img v-bind:src="axiosDefaultsBaseURL + currentUser.avatar.url">
-            </v-avatar>
-          </template>
-          <template v-else-if="currentUser.avatar && node_env == 'production'">
-            <v-avatar size="36">
-              <img v-bind:src="currentUser.avatar.url">
-            </v-avatar>
-          </template>
-        </router-link>
-      </v-card> -->
     </v-toolbar-items>
   </div>
 </template>
@@ -147,7 +127,7 @@
 import axios from 'axios';
 
 export default {
-  props: ['isAuthenticated', 'currentUser'],
+  props: ['isAuthenticated', 'authUser'],
   data: function() {
     return {
       lououtUserMessage: '',
@@ -156,14 +136,14 @@ export default {
       axiosDefaultsBaseURL: axios.defaults.baseURL,
       toolbar_lists: [
         { name: 'ユーザー一覧画面', link: '/users', icon: 'mdi-format-list-bulleted' },
-        { name: 'ユーザー詳細画面', link: '/users/' + this.currentUser.id, icon: 'mdi-account' },
-        { name: 'ユーザー編集画面', link: '/users/' + this.currentUser.id + '/edit', icon: 'mdi-account-edit' }
+        { name: 'ユーザー詳細画面', link: '/users/' + this.authUser.id, icon: 'mdi-account' },
+        { name: 'ユーザー編集画面', link: '/users/' + this.authUser.id + '/edit', icon: 'mdi-account-edit' }
       ],
-      toolbar_list_logout: { name: 'ログアウト | ' + this.currentUser.name, icon: 'mdi-logout' },
+      toolbar_list_logout: { name: 'ログアウト | ' + this.authUser.name, icon: 'mdi-logout' },
       nav_lists: [
-        { name: 'ユーザー情報画面', link: '/users/' + this.currentUser.id, icon: 'mdi-account' },
-        { name: 'ユーザー情報編集', link: '/users/' + this.currentUser.id + '/edit', icon: 'mdi-account-edit'},
-        { name: 'アイコン画像編集', link: '/users/' + this.currentUser.id + '/edit/avatar', icon: 'mdi-account-circle'}
+        { name: 'ユーザー情報画面', link: '/users/' + this.authUser.id, icon: 'mdi-account' },
+        { name: 'ユーザー情報編集', link: '/users/' + this.authUser.id + '/edit', icon: 'mdi-account-edit'},
+        { name: 'アイコン画像編集', link: '/users/' + this.authUser.id + '/edit/avatar', icon: 'mdi-account-circle'}
       ]
     }
   },
@@ -174,12 +154,12 @@ export default {
         .delete('/api/v1/logout')
         .then(function(response) {
           self.lououtUserMessage = response.data.message;
-          self.$store.commit('flashMessage', self.lououtUserMessage)
+          self.$store.dispatch('flashMessage', { message: self.lououtUserMessage, type: "success"});
           self.$router.push('/login');
           console.log(response);
         })
         .catch(function(error) {
-          self.errorFlag = true;
+          self.$store.dispatch('flashMessage', { message: "サーバーとの通信にエラーが発生しています", type: "warning"})
           console.log(error);
         })
     }

@@ -1,8 +1,6 @@
 <template>
   <div>
     <p>users#edit, users#update</p>
-    <p v-show="errorFlag">サーバとの通信にエラーが発生しています</p>
-
     <div id="users-edit">
       <v-container>
         <v-row>
@@ -14,11 +12,10 @@
               <v-card-text>
                 <ValidationObserver v-slot="{ invalid }">
                   <template>
-
                     <ValidationProvider name="ユーザー名" rules="required|userName" v-slot="{ errors }">
                       <v-text-field
                         prepend-icon="mdi-account-circle"
-                        v-model="user.name"
+                        v-model="authUser.name"
                         :error-messages="errors"
                         id="user_name"
                         name="user[name]"
@@ -32,7 +29,7 @@
                     <ValidationProvider name="メールアドレス" rules="required|userMailAddress" v-slot="{ errors }">
                       <v-text-field
                         prepend-icon="mdi-email"
-                        v-model="user.email"
+                        v-model="authUser.email"
                         :error-messages="errors"
                         id="user_email"
                         name="user[email]"
@@ -46,7 +43,7 @@
                       <v-text-field
                         prepend-icon="mdi-lock"
                         v-bind:append-icon="showUserPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                        v-model="user.password"
+                        v-model="authUser.password"
                         :error-messages="errors"
                         id="user_password"
                         name="user[password]"
@@ -63,7 +60,7 @@
                       <v-text-field
                         prepend-icon="mdi-lock-check"
                         v-bind:append-icon="showUserPasswordConfirmation ? 'mdi-eye' : 'mdi-eye-off'"
-                        v-model="user.password_confirmation"
+                        v-model="authUser.password_confirmation"
                         :error-messages="errors"
                         id="user_password_confirmation"
                         name="user[password_confirmation]"
@@ -76,7 +73,6 @@
                         color="teal lighten-2"
                       ></v-text-field>
                     </ValidationProvider>
-
                     <v-card-actions>
                       <v-btn
                         :disabled="invalid"
@@ -91,7 +87,6 @@
         </v-row>
       </v-container>
     </div>
-
   </div>
 </template>
 
@@ -134,7 +129,6 @@ extend('userPasswordConfirmation', function(value) {
   return /^[a-zA-Z0-9!#%&,:;<=>@_`~$*+-./?\\^|]{8,32}$/.test(value) || '{_field_}は半角英数字記号で8~32文字で入力してください';
 });
 
-
 export default {
   props: ['id'],
   components: {
@@ -143,15 +137,14 @@ export default {
   },
   data: function() {
     return {
-      user: {},
-      errorFlag: false,
+      authUser: {},
       showUserPassword: false,
       showUserPasswordConfirmation: false,
-      node_env: process.env.NODE_ENV,
-      axiosDefaultsBaseURL: axios.defaults.baseURL,
       successUpdateUserMessage: '',
       failureUpdateUserMessage: '',
-      userUpdateErrors: {},
+      updateUserErrors: {},
+      node_env: process.env.NODE_ENV,
+      axiosDefaultsBaseURL: axios.defaults.baseURL
     }
   },
   beforeRouteEnter(to, from, next) { // -> GET, users#edit
@@ -159,7 +152,7 @@ export default {
       .get('/api/v1/users/' + to.params.id + '/edit')
       .then(function(response) {
         if (response.data.status === 401 && response.data.message === "Unauthorized") {
-          store.commit('flashMessage', 'ログインしてください');
+          store.dispatch('flashMessage', { message: 'ログインしてください', type: "error"});
           next('/login');
         } else if (response.data.status !== 401 && response.data.message !== "Unauthorized") {
           next();
@@ -174,46 +167,42 @@ export default {
     updateUser: function() { // -> PATCH, users#update
       const self = this;
       axios
-        .patch('/api/v1/users/' + self.user.id, {
+        .patch('/api/v1/users/' + self.authUser.id, {
           user: {
-            name: self.user.name,
-            email: self.user.email,
-            password: self.user.password,
-            password_confirmation: self.user.password_confirmation,
+            name: self.authUser.name,
+            email: self.authUser.email,
+            password: self.authUser.password,
+            password_confirmation: self.authUser.password_confirmation,
           }
         })
         .then(function(response) {
           if ((response.data.message === "ユーザー情報の編集に成功しました") && (self.successUpdateUserMessage = response.data.message)) {
-            self.user = response.data.user;
-            self.$store.commit('flashMessage', self.successUpdateUserMessage);
-            self.$router.push('/users/' + self.user.id)
+            self.$store.dispatch('flashMessage', { message: self.successUpdateUserMessage, type: "success"});
+            self.authUser = response.data.auth_user;
+            self.$router.push('/users/' + self.authUser.id)
           } else if ((response.data.message === "ユーザー情報の編集に失敗しました") && (self.failureUpdateUserMessage = response.data.message)) {
-            self.user = response.data.user;
-            self.userUpdateErrors = response.data.errors;
-            self.$store.commit('flashMessage', self.failureUpdateUserMessage);
-            // self.user.name = '';
-            // self.user.email = '';
-            // self.user.password = '';
-            // self.user.password_confirmation = '';
+            self.$store.dispatch('flashMessage', { message: self.failureUpdateUserMessage, type: "error"});
+            self.authUser = response.data.auth_user;
+            self.updateUserErrors = response.data.errors;
           }
           console.log(response);
         })
         .catch(function(error) {
-          self.errorFlag = true;
+          self.$store.dispatch('flashMessage', { message: "サーバーとの通信にエラーが発生しています", type: "warning"});
           console.log(error);
         })
     }
   },
-  mounted: function() { // -> GET, users#edit
+  created: function() { // -> GET, users#edit
     const self = this;
     axios
       .get('/api/v1/users/' + self.$route.params.id + '/edit')
       .then(function(response) {
-        self.user = response.data.user;
+        self.authUser = response.data.auth_user;
         console.log(response);
       })
       .catch(function(error) {
-        self.errorFlag = true;
+        self.$store.dispatch('flashMessage', { message: "サーバーとの通信にエラーが発生しています", type: "warning"});
         console.log(error);
       })
   }

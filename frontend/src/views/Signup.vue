@@ -1,9 +1,7 @@
 <template>
   <div>
     <p>users#new, users#create</p>
-    <p v-show="errorFlag">サーバとの通信にエラーが発生しています</p>
     <div id="signup">
-
       <v-container>
         <v-row>
           <v-col cols="12" sm="8" md="6" class="mx-auto">
@@ -17,7 +15,7 @@
                     <ValidationProvider name="ユーザー名" rules="required|userName" v-slot="{ errors }">
                       <v-text-field
                         prepend-icon="mdi-account-circle"
-                        v-model="user.name"
+                        v-model="newUser.name"
                         :error-messages="errors"
                         id="user_name"
                         name="user[name]"
@@ -31,7 +29,7 @@
                     <ValidationProvider name="メールアドレス" rules="required|userMailAddress" v-slot="{ errors }">
                       <v-text-field
                         prepend-icon="mdi-email"
-                        v-model="user.email"
+                        v-model="newUser.email"
                         :error-messages="errors"
                         id="user_email"
                         name="user[email]"
@@ -45,7 +43,7 @@
                       <v-text-field
                         prepend-icon="mdi-lock"
                         v-bind:append-icon="showUserPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                        v-model="user.password"
+                        v-model="newUser.password"
                         :error-messages="errors"
                         id="user_password"
                         name="user[password]"
@@ -62,7 +60,7 @@
                       <v-text-field
                         prepend-icon="mdi-lock-check"
                         v-bind:append-icon="showUserPasswordConfirmation ? 'mdi-eye' : 'mdi-eye-off'"
-                        v-model="user.password_confirmation"
+                        v-model="newUser.password_confirmation"
                         :error-messages="errors"
                         id="user_password_confirmation"
                         name="user[password_confirmation]"
@@ -85,7 +83,6 @@
           </v-col>
         </v-row>
       </v-container>
-
     </div>
   </div>
 </template>
@@ -148,7 +145,6 @@ extend('userPasswordConfirmation', function(value) {
 //   message: '入力されたメールアドレスは正しくありません'
 // });
 
-
 export default {
   components: {
     ValidationObserver,
@@ -156,8 +152,7 @@ export default {
   },
   data: function() {
     return {
-      user: {},
-      errorFlag: false,
+      newUser: {}, // '/signup'
       showUserPassword: false,
       showUserPasswordConfirmation: false,
       successSignupMessage: '',
@@ -169,9 +164,9 @@ export default {
     axios
       .get('/api/v1/signup') // -> GET, users#new
       .then(function(response) {
-        if (response.data.user.id !== null) { // userにidが存在する場合にルート画面へルーティング
+        if (response.data.auth_user) {
           next('/');
-        } else if (response.data.user.id === null) { // userにidが存在しない場合にサインアップ画面へルーティング
+        } else if (response.data.user) {
           next();
         }
         console.log(response);
@@ -181,48 +176,44 @@ export default {
       })
   },
   methods: {
-    createUser: function() { // -> POST, users#create
+    createUser: function() {
       const self = this;
       axios
-        .post('/api/v1/signup', {
+        .post('/api/v1/signup', { // -> POST, users#create
           user: {
-            name: self.user.name,
-            email: self.user.email,
-            password: self.user.password,
-            password_confirmation: self.user.password_confirmation
+            name: self.newUser.name,
+            email: self.newUser.email,
+            password: self.newUser.password,
+            password_confirmation: self.newUser.password_confirmation
           }
         })
         .then(function(response) {
           if ((response.data.message === "ユーザー作成に成功しました") && (self.successSignupMessage = response.data.message)) {
-            self.user = response.data.user;
-            self.$store.commit('flashMessage', self.successSignupMessage);
-            self.$router.push('/users/' + self.user.id)
+            self.$store.dispatch('flashMessage', { message: self.successSignupMessage, type: "success"});
+            self.newUser = response.data.user;
+            self.$router.push('/users/' + self.newUser.id)
           } else if ((response.data.message === "ユーザー作成に失敗しました") && (self.failureSignupMessage = response.data.message)) {
+            self.$store.dispatch('flashMessage', { message: self.failureSignupMessage, type: "error"});
             self.signupErrors = response.data.errors;
-            self.$store.commit('flashMessage', self.failureSignupMessage);
-            // self.user.name = '';
-            // self.user.email = '';
-            // self.user.password = '';
-            // self.user.password_confirmation = '';
           }
           console.log(response);
         })
         .catch(function(error) {
-          self.errorFlag = true;
+          self.$store.dispatch('flashMessage', { message: "サーバーとの通信にエラーが発生しています", type: "warning"});
           console.log(error);
         })
     },
   },
-  mounted: function() { // -> GET, users#new
+  created: function() {
     const self = this;
     axios
-      .get('/api/v1/signup')
+      .get('/api/v1/signup') // -> GET, users#new
       .then(function(response) {
-        self.user = response.data.user;
+        self.newUser = response.data.user;
         console.log(response);
       })
       .catch(function(error) {
-        self.errorFlag = true;
+        self.$store.dispatch('flashMessage', { message: "サーバーとの通信にエラーが発生しています", type: "warning"});
         console.log(error);
       })
   }

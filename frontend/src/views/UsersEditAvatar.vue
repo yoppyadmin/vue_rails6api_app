@@ -1,7 +1,6 @@
 <template>
   <div>
     <p>users#edit, users#update</p>
-    <p v-show="errorFlag">サーバとの通信にエラーが発生しています</p>
 
     <div id="users-avatar-edit">
       <v-container>
@@ -15,14 +14,14 @@
                 <p>画像を選択してください</p>
               </v-card-subtitle>
               <v-list-item class="d-flex flex-column justify-center">
-                <template v-if="user.avatar && node_env !== 'production'">
+                <template v-if="authUser.avatar && node_env !== 'production'">
                   <v-list-item-avatar size="128">
-                    <img v-bind:src="axiosDefaultsBaseURL + user.avatar.url" id="preview" name="preview">
+                    <img v-bind:src="axiosDefaultsBaseURL + authUser.avatar.url" id="preview" name="preview">
                   </v-list-item-avatar>
                 </template>
-                <template v-else-if="user.avatar && node_env == 'production'">
+                <template v-else-if="authUser.avatar && node_env == 'production'">
                   <v-list-item-avatar size="128">
-                    <img v-bind:src="user.avatar.url" id="preview" name="preview">
+                    <img v-bind:src="authUser.avatar.url" id="preview" name="preview">
                   </v-list-item-avatar>
                 </template>
                 <input
@@ -63,11 +62,11 @@ export default {
   props: ['id'],
   data: function() {
     return {
-      user: {},
-      errorFlag: false,
+      authUser: {},
       successUpdateUserAvatarMessage: '',
       failureUpdateUserAvatarMessage: '',
       userUpdateAvatarErrors: {},
+
       node_env: process.env.NODE_ENV,
       axiosDefaultsBaseURL: axios.defaults.baseURL
     }
@@ -94,7 +93,7 @@ export default {
     },
     selectedFile: function() {
       const previewElement = document.getElementById('preview');
-      this.user.avatar = this.$refs.input.files[0];
+      this.authUser.avatar = this.$refs.input.files[0];
       const reader = new FileReader();
       reader.addEventListener('load', function() {
         previewElement.src = reader.result;
@@ -104,42 +103,42 @@ export default {
     updateUserAvatar: function() {
       const self = this;
       const formData = new FormData();
-      formData.append("user[avatar]", self.user.avatar);
+      formData.append("user[avatar]", self.authUser.avatar);
       const config = {
         headers: {
           'content-type': 'multipart/form-data'
         }
       };
       axios
-        .patch('/api/v1/users/' + self.user.id, formData, { config })
+        .patch('/api/v1/users/' + self.authUser.id, formData, { config }) // -> PATCH, users#update
         .then(function(response) {
           if ((response.data.message === "ユーザー情報の編集に成功しました") && (self.successUpdateUserAvatarMessage = response.data.message)) {
-            self.user = response.data.user;
+            self.authUser = response.data.auth_user;
             self.$store.commit('flashMessage', self.successUpdateUserAvatarMessage);
             self.$router.push('/users/' + self.user.id)
           } else if ((response.data.message === "ユーザー情報の編集に失敗しました") && (self.failureUpdateUserAvatarMessage = response.data.message)) {
-            self.user = response.data.user;
+            self.authUser = response.data.auth_user;
             self.userUpdateErrors = response.data.errors;
             self.$store.commit('flashMessage', self.failureUpdateUserAvatarMessage);
           }
           console.log(response);
         })
         .catch(function(error) {
-          self.errorFlag = true;
+          self.$store.dispatch('flashMessage', { message: "サーバーとの通信にエラーが発生しています", type: "warning"});
           console.log(error);
         })
     }
   },
-  mounted: function() { // -> GET, users#edit
+  created: function() {
     const self = this;
     axios
-      .get('/api/v1/users/' + self.$route.params.id + '/edit')
+      .get('/api/v1/users/' + self.$route.params.id + '/edit') // -> GET, users#edit
       .then(function(response) {
-        self.user = response.data.user;
+        self.authUser = response.data.auth_user;
         console.log(response);
       })
       .catch(function(error) {
-        self.errorFlag = true;
+        self.$store.dispatch('flashMessage', { message: "サーバーとの通信にエラーが発生しています", type: "warning"});
         console.log(error);
       })
   }

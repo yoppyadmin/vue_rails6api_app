@@ -3,7 +3,7 @@ module Api
     class SessionsController < ApplicationController
       def profile
         if @current_user
-          render json: { authenticated: true, logged_in_user: @current_user }
+          render json: { authenticated: true, auth_user: @current_user }
         else
           render json: { authenticated: false }
         end
@@ -11,30 +11,30 @@ module Api
 
       def new
         if @current_user
-          render json: { logged_in_user: @current_user }
+          render json: { auth_user: @current_user }
         else
-          not_logged_in_user = Session.new
-          render json: { not_logged_in_user: not_logged_in_user }
+          unauth_user = Session.new
+          render json: { unauth_user: unauth_user }
         end
       end
 
       def create
-        not_logged_in_user = Session.new(session_params)
-        if not_logged_in_user.valid? \
-        && (user = User.find_by(email: not_logged_in_user.email)) \
-        && user.authenticate(not_logged_in_user.password)
+        unauth_user = Session.new(session_params)
+        if unauth_user.valid? \
+        && (user = User.find_by(email: unauth_user.email)) \
+        && user.authenticate(unauth_user.password)
           log_in(user)
           remember(user) if params[:session][:remember_me] == true
-          logged_in_user = user
+          auth_user = user
           if (fowarding_url = session[:forwarding_url])
             path = fowarding_url.split(/\//, 4).last
-            render json: { message: "ログインに成功しました", logged_in_user: logged_in_user, path: path }
+            render json: { message: "ログインに成功しました", auth_user: auth_user, path: path }
             session.delete(:forwarding_url)
           else
-            render json: { message: "ログインに成功しました", logged_in_user: logged_in_user }
+            render json: { message: "ログインに成功しました", auth_user: auth_user }
           end
         else
-          render json: { message: "ログインに失敗しました", errors: not_logged_in_user.errors }
+          render json: { message: "ログインに失敗しました", errors: unauth_user.errors }
         end
       end
 

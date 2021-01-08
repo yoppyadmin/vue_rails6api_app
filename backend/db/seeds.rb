@@ -8,7 +8,7 @@ File.open(file_path, "wb") do |output|
     output.write(data.read)
   end
 end
-User.create!(
+user = User.create!(
   name: "hogehoge",
   email: "hoge@hoge.com",
   password: "hogehoge",
@@ -16,6 +16,26 @@ User.create!(
   avatar: File.open(Rails.root.join(file_path)),
   admin: true
 )
+user.create_account!(account_number: user.id)
+
+list_1 = Faker::Lorem.sentence(word_count: 3)
+list_2 = Faker::Lorem.sentence(word_count: 3)
+list_3 = [Faker::Lorem.sentence(word_count: 3), nil].sample
+list_4 = [Faker::Lorem.sentence(word_count: 3), nil].sample
+25.times do
+  list_1 = Faker::Lorem.sentence(word_count: 3)
+  list_2 = Faker::Lorem.sentence(word_count: 3)
+  list_3 = [Faker::Lorem.sentence(word_count: 3), nil].sample
+  list_4 = [Faker::Lorem.sentence(word_count: 3), nil].sample
+  post = user.posts.create!(
+    content: Faker::Lorem.question(word_count: 4),
+    list_1: list_1,
+    list_2: list_2,
+    list_3: list_3,
+    list_4: list_3.nil? ? nil : list_4
+  )
+  post.create_quantity!
+end
 
 (2..50).each do |n|
   name  = Faker::Internet.username(specifier: 6..20, separators: %w[_ -])
@@ -31,13 +51,30 @@ User.create!(
       output.write(data.read)
     end
   end
-  User.create!(
+  other_user = User.create!(
     name: name,
     email: email,
     password: password,
     password_confirmation: password,
     avatar: File.open(Rails.root.join(file_path))
   )
+  other_user.create_account!(account_number: other_user.id)
+end
+
+other_users = User.where("id >= ?", 2)
+other_users.each do |other_user|
+  list_1 = Faker::Lorem.sentence(word_count: 3)
+  list_2 = Faker::Lorem.sentence(word_count: 3)
+  list_3 = [Faker::Lorem.sentence(word_count: 3), nil].sample
+  list_4 = [Faker::Lorem.sentence(word_count: 3), nil].sample
+  post = other_user.posts.create!(
+    content: Faker::Lorem.question(word_count: 4),
+    list_1: list_1,
+    list_2: list_2,
+    list_3: list_3,
+    list_4: list_3.nil? ? nil : list_4
+  )
+  post.create_quantity!
 end
 
 # red_avatar = File.open(Rails.root.join("public/red_avatar.jpeg"))
