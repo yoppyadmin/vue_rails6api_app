@@ -33,12 +33,12 @@
           <template v-slot:activator="{on}">
             <div>
               <template v-if="authUser.avatar && node_env !== 'production'">
-                <v-avatar size="36">
+                <v-avatar size="36" class="blue-grey lighten-1">
                   <v-img v-on="on" v-bind:src="axiosDefaultsBaseURL + authUser.avatar.url" style="cursor: pointer;"></v-img>
                 </v-avatar>
               </template>
               <template  v-else-if="authUser.avatar && node_env == 'production'" style="cursor: pointer;">
-                <v-avatar size="36">
+                <v-avatar size="36" class="blue-grey lighten-1">
                   <v-img v-on="on" v-bind:src="authUser.avatar.url"></v-img>
                 </v-avatar>
               </template>
@@ -95,12 +95,12 @@
           <template v-slot:activator="{on}">
             <div>
               <template v-if="authUser.avatar && node_env !== 'production'">
-                <v-avatar size="36">
+                <v-avatar size="36" class="blue-grey lighten-1">
                   <v-img v-on="on" v-bind:src="axiosDefaultsBaseURL + authUser.avatar.url" style="cursor: pointer;"></v-img>
                 </v-avatar>
               </template>
               <template  v-else-if="authUser.avatar && node_env == 'production'" style="cursor: pointer;">
-                <v-avatar size="36">
+                <v-avatar size="36" class="blue-grey lighten-1">
                   <v-img v-on="on" v-bind:src="authUser.avatar.url"></v-img>
                 </v-avatar>
               </template>

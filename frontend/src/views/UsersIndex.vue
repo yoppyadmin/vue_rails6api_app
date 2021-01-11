@@ -5,16 +5,16 @@
       <v-container>
         <v-row>
           <v-col v-for="user in indexUsers" v-bind:key="user.id" cols="12" class="mx-auto">
-            <v-card flat>
+            <v-card>
               <hr>
               <template v-if="user.avatar && node_env !== 'production'">
-                <v-avatar>
-                  <img v-bind:src="axiosDefaultsBaseURL + user.avatar.url">
+                <v-avatar class="blue-grey lighten-1 mr-5">
+                  <v-img v-bind:src="axiosDefaultsBaseURL + user.avatar.url"></v-img>
                 </v-avatar>
               </template>
               <template v-else-if="user.avatar && node_env == 'production'">
-                <v-avatar>
-                  <img v-bind:src="user.avatar.url">
+                <v-avatar class="blue-grey lighten-1 mr-5">
+                  <v-img v-bind:src="user.avatar.url"></v-img>
                 </v-avatar>
               </template>
               <router-link :to="'/users/' + user.id" active-class="link--active" exact class="link">UsersShow_{{ user.id }}</router-link>

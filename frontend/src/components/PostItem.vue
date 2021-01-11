@@ -16,9 +16,9 @@
                     exact
                     class="link"
                   >
-                    <v-avatar size="48" class="grey darken-3 mr-5">
+                    <v-avatar size="48" class="blue-grey lighten-1 mr-5">
                       <!-- <v-img v-bind:src="axiosDefaultsBaseURL + '/uploads_development/user/avatar/'+ post.user_id + '/' + post.avatar" dark></v-img> -->
-                      <v-img v-bind:src="axiosAvatarURL + post.user_id + '/' + post.avatar" dark></v-img>
+                      <v-img v-bind:src="axiosAvatarURL + post.user_id + '/' + post.avatar"></v-img>
                     </v-avatar>
                   </router-link>
                 </template>
@@ -31,8 +31,8 @@
                     exact
                     class="link"
                   >
-                    <v-avatar size="48" class="grey darken-3 mr-5">
-                      <v-img v-bind:src="axiosAvatarURL + post.avatar" dark></v-img>
+                    <v-avatar size="48" class="blue-grey lighten-1 mr-5">
+                      <v-img v-bind:src="axiosAvatarURL + post.avatar"></v-img>
                     </v-avatar>
                   </router-link>
                 </template>
@@ -95,9 +95,9 @@
                     exact
                     class="link"
                   >
-                    <v-avatar size="48" class="grey darken-3 mr-5">
+                    <v-avatar size="48" class="blue-grey lighten-1 mr-5">
                       <!-- <v-img  v-bind:src="axiosDefaultsBaseURL + '/uploads_development/user/avatar/'+ post.user_id + '/' + post.avatar" dark></v-img> -->
-                      <v-img v-bind:src="axiosAvatarURL + post.user_id + '/' + post.avatar" dark></v-img>
+                      <v-img v-bind:src="axiosAvatarURL + post.user_id + '/' + post.avatar"></v-img>
                     </v-avatar>
                   </router-link>
                 </template>
@@ -110,8 +110,8 @@
                     exact
                     class="link"
                   >
-                    <v-avatar size="48" class="grey darken-3 mr-5">
-                      <v-img v-bind:src="axiosAvatarURL + post.avatar" dark></v-img>
+                    <v-avatar size="48" class="blue-grey lighten-1 mr-5">
+                      <v-img v-bind:src="axiosAvatarURL + post.avatar"></v-img>
                     </v-avatar>
                   </router-link>
                 </template>

@@ -15,13 +15,13 @@
               </v-card-subtitle>
               <v-list-item class="d-flex flex-column justify-center">
                 <template v-if="authUser.avatar && node_env !== 'production'">
-                  <v-list-item-avatar size="128">
-                    <img v-bind:src="axiosDefaultsBaseURL + authUser.avatar.url" id="preview" name="preview">
+                  <v-list-item-avatar size="128" class="blue-grey lighten-1">
+                    <v-img v-bind:src="axiosDefaultsBaseURL + authUser.avatar.url" id="preview" name="preview"></v-img>
                   </v-list-item-avatar>
                 </template>
                 <template v-else-if="authUser.avatar && node_env == 'production'">
-                  <v-list-item-avatar size="128">
-                    <img v-bind:src="authUser.avatar.url" id="preview" name="preview">
+                  <v-list-item-avatar size="128" class="blue-grey lighten-1">
+                    <v-img v-bind:src="authUser.avatar.url" id="preview" name="preview"></v-img>
                   </v-list-item-avatar>
                 </template>
                 <input
