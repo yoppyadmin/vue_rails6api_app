@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-card class="py-2" flat color="grey lighten-3">
+    <v-card class="py-2" color="grey lighten-3">
 
       <template v-if="currentUserVotedPostsId.indexOf(post.id) != -1">
 
@@ -49,22 +49,27 @@
 
         <router-link :to="'/posts/' + post.id">{{ post.id }}</router-link>
         <v-card-subtitle>投票内容: {{ post.content }}</v-card-subtitle>
+
         <v-card-text class="d-flex flex-column py-0">
           選択肢1: <h3>{{ post.list_1 }} | {{ post.quantity_list_1 }}</h3>
         </v-card-text>
+
         <v-card-text class="d-flex flex-column py-0" >
           選択肢2: <h3>{{ post.list_2 }} | {{ post.quantity_list_2 }}</h3>
         </v-card-text>
+
         <template v-if="post.list_3 !== null">
           <v-card-text class="d-flex flex-column py-0">
             選択肢3: <h3>{{ post.list_3 }} | {{ post.quantity_list_3 }}</h3>
           </v-card-text>
         </template>
+
         <template v-if="post.list_4 !== null">
           <v-card-text class="d-flex flex-column py-0">
             選択肢4: <h3>{{ post.list_4 }} | {{ post.quantity_list_4 }}</h3>
           </v-card-text>
         </template>
+
       </template>
 
       <template v-else>
@@ -110,22 +115,27 @@
         </v-container>
         <router-link :to="'/posts/' + post.id">{{ post.id }}</router-link>
         <v-card-subtitle>投票内容: {{ post.content }}</v-card-subtitle>
+
         <v-card-text class="d-flex flex-column py-0">
-          選択肢1: <v-btn v-on:click="createVote(post.id, 'list_1')" small color="teal lighten-1">{{ post.list_1 }}</v-btn>
+          選択肢1: <v-btn v-bind:disabled="voteDisable" v-on:click="createVote(post.id, 'list_1')" small color="teal lighten-1">{{ post.list_1 }}</v-btn>
         </v-card-text>
+
         <v-card-text class="d-flex flex-column py-0">
-          選択肢2: <v-btn v-on:click="createVote(post.id, 'list_2')" small color="teal lighten-1">{{ post.list_2 }}</v-btn>
+          選択肢2: <v-btn v-bind:disabled="voteDisable" v-on:click="createVote(post.id, 'list_2')" small color="teal lighten-1">{{ post.list_2 }}</v-btn>
         </v-card-text>
+
         <template v-if="post.list_3 !== null">
           <v-card-text class="d-flex flex-column py-0">
-            選択肢3: <v-btn v-on:click="createVote(post.id, 'list_3')" small color="teal lighten-1">{{ post.list_3 }}</v-btn>
+            選択肢3: <v-btn v-bind:disabled="voteDisable" v-on:click="createVote(post.id, 'list_3')" small color="teal lighten-1">{{ post.list_3 }}</v-btn>
           </v-card-text>
         </template>
+
         <template v-if="post.list_4 !== null">
           <v-card-text class="d-flex flex-column py-0">
-            選択肢4: <v-btn v-on:click="createVote(post.id, 'list_4')" small color="teal lighten-1">{{ post.list_4 }}</v-btn>
+            選択肢4: <v-btn v-bind:disabled="voteDisable" v-on:click="createVote(post.id, 'list_4')" small color="teal lighten-1">{{ post.list_4 }}</v-btn>
           </v-card-text>
         </template>
+
       </template>
 
     </v-card>
@@ -133,12 +143,11 @@
 </template>
 
 <script>
-import Vue from 'vue';
 import axios from 'axios';
 import BarChart from '../components/BarChart.vue';
 
 export default {
-  props: ['post', 'authUser', 'currentUserPostsId', 'currentUserVotedPostsId'],
+  props: ['post', 'authUser', 'currentUserPostsId', 'currentUserVotedPostsId', 'voteDisable', 'fetchedPosts'],
   components: {
     BarChart,
   },
@@ -159,10 +168,13 @@ export default {
     }
   },
   watch: {
-    post: function() {
-      // console.log(newValue, oldValue);
-      this.fillData(this.post);
-      this.$emit("loading", false);
+    post: {
+      handler: function() {
+        this.fillData(this.post);
+        this.$emit("loading", false);
+        this.$emit("vote-disable", false);
+      },
+      deep: true
     }
   },
   methods: {
@@ -179,13 +191,18 @@ export default {
           if ((response.data.message === "投稿を削除しました") && (self.deletePostMessage = response.data.message)) {
             self.$store.dispatch('flashMessage', { message: self.deletePostMessage, type: "success"});
             self.$emit("current-user-posts-id", response.data.current_user_posts_id);
-            if (response.data.posts_joins_quantities) {
-              self.$emit("index-posts", response.data.posts_joins_quantities); // '/'
-            } else if (response.data.user_posts_join_quantities) {
-              self.$emit("user-posts", response.data.user_posts_join_quantities); // '/users/:id'
-            } else {
-              self.$router.push('/users/' + self.authUser.id) // '/posts/:id'
+
+            // deletePostの重要処理
+            if (response.data.path === "/") { // postを削除したら、現在infiniteHandlerで取得しているpostsをemit
+              let fetchedIndexPosts = response.data.posts.slice(0, self.fetchedPosts.length)
+              self.$emit("index-posts", fetchedIndexPosts);
+            } else if (response.data.path === ("/users/" + self.$route.params.id)) { // postを削除したら、現在infiniteHandlerで取得しているpostsをemit
+              let fetchedUserPosts = response.data.posts.slice(0, self.fetchedPosts.length)
+              self.$emit("user-posts", fetchedUserPosts);
+            } else { // postを削除したら、'/users/:id'へルーティング
+              self.$router.push('/users/' + self.authUser.id)
             }
+
           }
           console.log(response);
         })
@@ -196,6 +213,7 @@ export default {
     },
     createVote: function(postId, listNumber) {
       const self = this;
+      self.$emit("vote-disable", true);
       axios
         .post('/api/v1/votes', { // -> POST, votes#create
           vote: {
@@ -212,22 +230,50 @@ export default {
               self.successCreateVoteMessage = response.data.message;
               self.$store.dispatch('flashMessage', { message: self.successCreateVoteMessage, type: "success"});
               self.$emit("current-user-votedposts-id", response.data.current_user_voted_posts_id);
-              if (response.data.index_posts) {
-                self.$emit("index-posts", response.data.index_posts); // '/'
-              } else if (response.data.user_posts) {
-                self.$emit("user-posts", response.data.user_posts); // '/users/:id'
+
+              // createVoteの重要処理
+              if (response.data.path === "/") {
+                // console.log(self.indexPosts)
+                // console.log(typeof self.indexPosts)
+                // console.log(response.data.index_posts)
+                // console.log(typeof response.data.index_posts)
+                let fetchedIndexPosts = response.data.posts.slice(0, self.fetchedPosts.length)
+                // console.log(self.indexPosts.length)
+                // console.log(response.data.index_posts.length)
+                // console.log(array.length)
+
+                // index_postsの 0 ~ 40の配列が欲しい
+                // 74 73 72 71 70 69 68 67 66 65
+                //  0                          9
+                // 64 63 62 61 60 59 58 57 56 55
+                //                            19
+                // 54 53 52 51 50 49 48 47 46 45
+                //                            29
+                // 44 43 42 41 40 39 38 37 36 35
+                //                            39
+
+                self.$emit("index-posts", fetchedIndexPosts);
+              } else if (response.data.path === ("/users/" + self.$route.params.id)) {
+                let fetchedUserPosts = response.data.posts.slice(0, self.fetchedPosts.length)
+                self.$emit("user-posts", fetchedUserPosts);
               } else {
-                self.$emit("show-post", response.data.post); // '/posts/:id'
+                self.$emit("show-post", response.data.post);
               }
+
+              setTimeout(function() {
+                self.$emit("vote-disable", false);
+              }, 100)
+
+              // チャートのデータを処理
               const allQuantities = response.data.post.quantity_list_1 + response.data.post.quantity_list_2 + response.data.post.quantity_list_3 + response.data.post.quantity_list_4
               const updateQuantityList1 = response.data.post.quantity_list_1 / allQuantities * 100
               const updateQuantityList2 = response.data.post.quantity_list_2 / allQuantities * 100
               const updateQuantityList3 = response.data.post.quantity_list_3 / allQuantities * 100
               const updateQuantityList4 = response.data.post.quantity_list_4 / allQuantities * 100
-              Vue.set(self.datacollection.datasets[0].data, 0, updateQuantityList1);
-              Vue.set(self.datacollection.datasets[0].data, 1, updateQuantityList2);
-              Vue.set(self.datacollection.datasets[0].data, 2, updateQuantityList3);
-              Vue.set(self.datacollection.datasets[0].data, 3, updateQuantityList4);
+              self.$set(self.datacollection.datasets[0].data, 0, updateQuantityList1);
+              self.$set(self.datacollection.datasets[0].data, 1, updateQuantityList2);
+              self.$set(self.datacollection.datasets[0].data, 2, updateQuantityList3);
+              self.$set(self.datacollection.datasets[0].data, 3, updateQuantityList4);
               break;
             }
             case "投票に失敗しました": {
@@ -408,6 +454,7 @@ export default {
   },
   created: function() {
     this.fillData(this.post);
+    this.$emit("vote-disable", false);
   }
 }
 </script>

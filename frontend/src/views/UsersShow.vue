@@ -37,11 +37,19 @@
           <v-row>
             <v-col v-for="post in userPosts" v-bind:key="post.id" cols="12" sm="12" md="6" class="my-auto">
               <PostItem
-                v-bind="{ post: post, authUser: authUser, currentUserPostsId: currentUserPostsId, currentUserVotedPostsId: currentUserVotedPostsId }"
+                v-bind="{
+                  post: post,
+                  authUser: authUser,
+                  currentUserPostsId: currentUserPostsId,
+                  currentUserVotedPostsId: currentUserVotedPostsId,
+                  voteDisable: voteDisable,
+                  fetchedPosts: userPosts
+                }"
                 v-on:user-posts="userPosts = $event"
                 v-on:current-user-posts-id="currentUserPostsId = $event"
                 v-on:current-user-votedposts-id="currentUserVotedPostsId = $event"
                 v-on:create-vote-errors="createVoteErrors = $event"
+                v-on:vote-disable="voteDisable = $event"
                 >
               </PostItem>
             </v-col>
@@ -92,8 +100,10 @@ export default {
       currentUserVotedPostsId: [], // '/users/:id'
       postsData: [], // infinite-loading
       userPosts: [], // infinite-loading
-      start: 0,
-      end: 20,
+      start: 0, // infinite-loading
+      end: 20, // infinite-loading
+
+      // errors
       createVoteErrors: {},
 
       // avatar
@@ -105,11 +115,15 @@ export default {
         '投稿', 'いいね', 'フォロー', 'フォロワー'
       ],
       tab: null,
+
+      // v-btn disabled
+      voteDisable: false
     }
   },
   methods: {
     infiniteHandler: function($state) {
       const self = this;
+      self.voteDisable = true;
       axios
         .get('/api/v1/users/' + self.$route.params.id) // -> GET, users#show
         .then(function(response) {

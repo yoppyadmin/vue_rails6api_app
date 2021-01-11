@@ -67,7 +67,7 @@
           active-class="link--active"
           exact
           class="link"
-        ><v-btn class="grey darken-4"><span class="grey--text text--lighten-5">ユーザー一覧画面</span></v-btn></router-link>
+        ><v-btn class="grey darken-4" depressed><span class="grey--text text--lighten-5">ユーザー一覧画面</span></v-btn></router-link>
       </v-card>
       <v-card class="grey darken-4" flat>
         <router-link
@@ -75,7 +75,7 @@
           active-class="link--active"
           exact
           class="link"
-        ><v-btn class="grey darken-4"><span class="grey--text text--lighten-5">ユーザー詳細画面</span></v-btn></router-link>
+        ><v-btn class="grey darken-4" depressed><span class="grey--text text--lighten-5">ユーザー詳細画面</span></v-btn></router-link>
       </v-card>
       <v-card class="grey darken-4" flat>
         <router-link
@@ -83,10 +83,10 @@
           active-class="link--active"
           exact
           class="link"
-        ><v-btn class="grey darken-4"><span class="grey--text text--lighten-5">ユーザー編集画面</span></v-btn></router-link>
+        ><v-btn class="grey darken-4" depressed><span class="grey--text text--lighten-5">ユーザー編集画面</span></v-btn></router-link>
       </v-card>
       <v-card class="grey darken-4" flat>
-        <v-btn v-on:click="logoutUser()" class="grey darken-4">
+        <v-btn v-on:click="logoutUser()" class="grey darken-4" depressed>
           <span class="grey--text text--lighten-5">ログアウト | {{ authUser.name }}</span>
         </v-btn>
       </v-card>

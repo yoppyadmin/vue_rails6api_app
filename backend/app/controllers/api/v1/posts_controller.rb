@@ -85,29 +85,28 @@ module Api
         def set_render_json_for_destroy_post(post, params)
           set_current_user_posts_id
           case params[:vue_router_path]
-          when "/"
+          when  path = "/"
             set_posts_joins_quantities
             render json: {
               message: "投稿を削除しました",
-              posts_joins_quantities: @posts_joins_quantities,
-              current_user_posts_id: @current_user_posts_id
+              posts: @posts_joins_quantities,
+              current_user_posts_id: @current_user_posts_id,
+              path: path
             }
-          when "/users/#{params[:vue_router_params_id]}"
-            user_posts_join_quantities = Post.joins(:user, :quantity).select('
-              posts.*,
-              users.avatar,
-              quantities.quantity_list_1,
-              quantities.quantity_list_2,
-              quantities.quantity_list_3,
-              quantities.quantity_list_4
-            ').order(created_at: :DESC).where(user_id: post.user.id)
+          when path = "/users/#{params[:vue_router_params_id]}"
+            set_posts_joins_quantities
+            user_posts_join_quantities = @posts_joins_quantities.where(user_id: post.user.id)
             render json: {
               message: "投稿を削除しました",
-              user_posts_join_quantities: user_posts_join_quantities,
-              current_user_posts_id: @current_user_posts_id
+              posts: user_posts_join_quantities,
+              current_user_posts_id: @current_user_posts_id,
+              path: path
             }
-          when "/posts/#{params[:id]}"
-            render json: { message: "投稿を削除しました" }
+          when path = "/posts/#{params[:id]}"
+            render json: {
+              message: "投稿を削除しました",
+              path: path
+            }
           end
         end
 

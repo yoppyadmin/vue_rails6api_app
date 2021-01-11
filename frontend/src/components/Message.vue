@@ -1,17 +1,20 @@
 <template>
   <div>
-    <transition name="fade">
-      <v-card class="d-flex justify-end px-0 py-0 mx-0 my-0" v-if="alert" style="z-index: 1;">
-        <v-alert
-          class="my-1 mx-1 "
-          v-bind:type="style"
-          dense
-          style="position: fixed;"
-        >
-          {{ message }}
-        </v-alert>
-      </v-card>
-    </transition>
+    <v-row>
+      <v-col cols="12" class="pa-0">
+        <transition name="fade">
+          <v-card v-if="alert" flat >
+            <v-alert
+              v-bind:type="style"
+              dense
+              class="mb-0"
+            >
+              {{ message }}
+            </v-alert>
+          </v-card>
+        </transition>
+      </v-col>
+    </v-row>
   </div>
 </template>
 

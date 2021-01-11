@@ -8,11 +8,18 @@
           <Loading v-show="loading"></Loading>
           <PostItem
             v-show="!loading"
-            v-bind="{ post: post, authUser: authUser, currentUserPostsId: currentUserPostsId ,currentUserVotedPostsId: currentUserVotedPostsId }"
+            v-bind="{
+              post: post,
+              authUser: authUser,
+              currentUserPostsId: currentUserPostsId ,
+              currentUserVotedPostsId: currentUserVotedPostsId,
+              voteDisable: voteDisable
+            }"
             v-on:show-post="post = $event"
             v-on:current-user-votedposts-id="currentUserVotedPostsId = $event"
             v-on:create-vote-errors="createVoteErrors = $event"
             v-on:loading="loading = $event"
+            v-on:vote-disable="voteDisable = $event"
           ></PostItem>
         </v-col>
       </v-row>
@@ -31,19 +38,27 @@ export default {
       post: {}, // '/posts/:id'
       currentUserPostsId: [], // '/posts/:id'
       currentUserVotedPostsId: [], // '/posts/:id'
+
+      // errors
       createVoteErrors: {},
-      loading: true
+
+      // loading
+      loading: true,
+
+      // v-btn disabled
+      voteDisable: false
     }
   },
   created: function() {
     const self = this;
+    self.voteDisable = true;
     axios
       .get('/api/v1/posts/' + self.$route.params.id)
       .then(function(response) {
         self.authUser = response.data.auth_user;
-        setTimeout(function() {
-          self.post = response.data.post;
-        }, 1000)
+
+        self.post = response.data.post;
+
         if (response.data.current_user_posts_id && response.data.current_user_voted_posts_id) {
           self.currentUserPostsId = response.data.current_user_posts_id;
           self.currentUserVotedPostsId = response.data.current_user_voted_posts_id;

@@ -22,7 +22,7 @@ list_1 = Faker::Lorem.sentence(word_count: 3)
 list_2 = Faker::Lorem.sentence(word_count: 3)
 list_3 = [Faker::Lorem.sentence(word_count: 3), nil].sample
 list_4 = [Faker::Lorem.sentence(word_count: 3), nil].sample
-25.times do
+35.times do
   list_1 = Faker::Lorem.sentence(word_count: 3)
   list_2 = Faker::Lorem.sentence(word_count: 3)
   list_3 = [Faker::Lorem.sentence(word_count: 3), nil].sample

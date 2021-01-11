@@ -7,6 +7,7 @@ module Api
         post = Post.find(params[:vote][:post_id])
         check_already_voted(post)
         vote = @current_user.votes.build(vote_params)
+
         if vote.save
           increment_post_list_number(post, params[:list_number])
           set_posts_joins_quantities
@@ -46,26 +47,29 @@ module Api
           post_joins_quantity = @posts_joins_quantities.find(post.id)
           current_user_voted_posts_id = @current_user.votes.eager_load(:post).map { |vote| vote.post.id }
           case params[:vue_router_path]
-          when "/"
+          when path = "/"
             render json: {
               message: "投票に成功しました",
               post: post_joins_quantity,
-              index_posts: @posts_joins_quantities,
-              current_user_voted_posts_id: current_user_voted_posts_id
+              posts: @posts_joins_quantities,
+              current_user_voted_posts_id: current_user_voted_posts_id,
+              path: path
             }
-          when "/users/#{params[:vue_router_params_id].to_i}"
+          when path = "/users/#{params[:vue_router_params_id].to_i}"
             user_posts_joins_quantities = @posts_joins_quantities.where(user_id: params[:vue_router_params_id].to_i)
             render json: {
               message: "投票に成功しました",
               post: post_joins_quantity,
-              user_posts: user_posts_joins_quantities,
-              current_user_voted_posts_id: current_user_voted_posts_id
+              posts: user_posts_joins_quantities,
+              current_user_voted_posts_id: current_user_voted_posts_id,
+              path: path
             }
-          when "/posts/#{params[:vote][:post_id]}"
+          when path = "/posts/#{params[:vote][:post_id]}"
             render json: {
               message: "投票に成功しました",
               post: post_joins_quantity,
-              current_user_voted_posts_id: current_user_voted_posts_id
+              current_user_voted_posts_id: current_user_voted_posts_id,
+              path: path
             }
           end
         end

@@ -41,7 +41,7 @@ Metrics/ClassLength: # クラスの長さ
     Max: 110
 
 Metrics/MethodLength: # メソッドの長さ
-    Max: 26
+    Max: 30
 
 Layout/IndentationConsistency: # private, protected配下のメソッドのインデント
     EnforcedStyle: indented_internal_methods

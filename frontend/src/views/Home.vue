@@ -18,17 +18,24 @@
         <v-row id="posts-index">
           <v-col v-for="post in indexPosts" v-bind:key="post.id" cols="12" sm="12" md="6" class="my-auto">
             <PostItem
-              v-bind="{ post: post, authUser: authUser, currentUserPostsId: currentUserPostsId, currentUserVotedPostsId: currentUserVotedPostsId }"
+              v-bind="{
+                post: post,
+                authUser: authUser,
+                currentUserPostsId: currentUserPostsId,
+                currentUserVotedPostsId: currentUserVotedPostsId,
+                voteDisable: voteDisable,
+                fetchedPosts: indexPosts
+              }"
               v-on:index-posts="indexPosts = $event"
               v-on:current-user-posts-id="currentUserPostsId = $event"
               v-on:current-user-votedposts-id="currentUserVotedPostsId = $event"
               v-on:create-vote-errors="createVoteErrors = $event"
-            >
-            </PostItem>
+              v-on:vote-disable="voteDisable = $event"
+            ></PostItem>
           </v-col>
         </v-row>
 
-        <infinite-loading spinner="bubbles" v-bind:distance="0" @infinite="infiniteHandler">
+        <infinite-loading spinner="bubbles" v-bind:distance="300" @infinite="infiniteHandler">
           <div slot="no-more">これ以上結果がありません</div>  <!--これ以上表示するデータがない時に表示されるメッセージ-->
           <div slot="no-results">結果がありません</div>  <!--検索結果がない時に表示されるメッセージ-->
         </infinite-loading>
@@ -53,15 +60,21 @@ export default {
       newPost: {}, // '/posts/new'
       postsData: [], // infinite-loading
       indexPosts: [], // infinite-loading
-      start: 0,
-      end: 20,
+      start: 0, // infinite-loading
+      end: 20, // infinite-loading
+
+      // errors
       createPostErrors: {},
       createVoteErrors: {},
+
+      // v-btn disabled
+      voteDisable: false
     }
   },
   methods: {
     infiniteHandler: function($state) {
       const self = this;
+      self.voteDisable = true;
       axios
         .get('/api/v1/posts') // -> GET, posts#index
         .then(function(response) {
@@ -82,13 +95,13 @@ export default {
                 self.start = self.start + 20;
                 self.end = self.end + 20;
                 $state.loaded();
-              }, 1500)
+              }, 500)
             }
           } else {
             setTimeout(function() {
               self.end = self.postsData.length;
               for (let i = self.start; i < self.end; i++) {
-                self.indexPosts.push(self.postsData[i])
+                self.indexPosts.push(self.postsData[i]);
               }
               $state.complete();
             }, 500)

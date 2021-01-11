@@ -1,7 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar app class="grey darken-4">
-      <!-- <v-app-bar-nav-icon v-on:click="drawer=!drawer" class="grey--text text--lighten-2"></v-app-bar-nav-icon> -->
+    <v-app-bar fixed height="64" class="grey darken-4">
       <v-toolbar-title>
         <router-link
           to="/"
@@ -21,8 +20,10 @@
     </v-app-bar>
 
     <v-main>
-      <Message></Message>
-      <router-view></router-view>
+      <Message id="message"></Message>
+      <router-view
+        :style="{'padding-top': mainPaddingTop}"
+      ></router-view>
     </v-main>
 
     <v-footer app class="grey darken-4">
@@ -45,6 +46,16 @@ export default {
     return{
       isAuthenticated: '',
       authUser: {},
+      mainPaddingTop: ''
+    }
+  },
+  methods: {
+    confirmPaddingTop: function() {
+      if (this.$store.state.alert === true) {
+        return this.mainPaddingTop = '104px'
+      } else if (this.$store.state.alert === false) {
+        return this.mainPaddingTop = '64px'
+      }
     }
   },
   watch: { // -> GET, sessions#profile
@@ -76,6 +87,7 @@ export default {
         if (response.data.auth_user) {
           self.authUser = response.data.auth_user;
         }
+        self.confirmPaddingTop();
         console.log(response);
       })
       .catch(function(error) {
@@ -87,6 +99,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  #message {
+    position: fixed;
+    width: 100%;
+    z-index: 1;
+    padding-top: 64px;
+  }
   .link {
     text-decoration: none;
     color: #F5F5F5;
