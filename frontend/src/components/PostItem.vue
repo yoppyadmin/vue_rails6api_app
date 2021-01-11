@@ -30,7 +30,7 @@
                     exact
                     class="link"
                   >
-                    <v-avatar size="48" class="grey darken-3">
+                    <v-avatar size="48" class="grey darken-3 mr-5">
                       <v-img v-bind:src="axiosProductionAvatarURL + post.avatar" dark></v-img>
                     </v-avatar>
                   </router-link>
@@ -108,7 +108,7 @@
                     exact
                     class="link"
                   >
-                    <v-avatar size="48" class="grey darken-3">
+                    <v-avatar size="48" class="grey darken-3 mr-5">
                       <v-img v-bind:src="axiosProductionAvatarURL + post.avatar" dark></v-img>
                     </v-avatar>
                   </router-link>
