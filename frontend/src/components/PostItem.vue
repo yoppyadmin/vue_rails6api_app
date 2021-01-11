@@ -8,7 +8,7 @@
           <v-row>
             <v-col class="pa-0">
               <div class="d-flex flex-row align-center">
-              <!-- 開発環境 -->
+              <!-- 開発環境 avatar -->
                 <template v-if="post.avatar && node_env !== 'production'">
                   <router-link
                     :to="'/users/' + post.user_id"
@@ -21,12 +21,21 @@
                     </v-avatar>
                   </router-link>
                 </template>
-              <!-- 本番環境 -->
-                <!-- <template v-else-if="post.avatar && node_env == 'production'">
-                  <v-avatar size="48" class="grey darken-3">
-                    <v-img v-bind:src="post.avatar" dark></v-img>
-                  </v-avatar>
-                </template> -->
+              <!--  -->
+              <!-- 本番環境 avatar -->
+                <template v-else-if="post.avatar && node_env == 'production'">
+                  <router-link
+                    :to="'/users/' + post.user_id"
+                    active-class="link--active"
+                    exact
+                    class="link"
+                  >
+                    <v-avatar size="48" class="grey darken-3">
+                      <v-img v-bind:src="process.env.VUE_APP_API_AVATAR_URL + post.avatar" dark></v-img>
+                    </v-avatar>
+                  </router-link>
+                </template>
+              <!--  -->
                 <div class="font-weight-bold">{{ post.user_id }}</div>
                 <v-menu offset-y v-if="currentUserPostsId.indexOf(post.id) != -1">
                   <template v-slot:activator="{on}">
@@ -90,12 +99,21 @@
                     </v-avatar>
                   </router-link>
                 </template>
+              <!--  -->
               <!-- 本番環境 -->
-                <!-- <template v-else="post.avatar && node_env == 'production'">
-                  <v-avatar size="48" class="grey darken-3">
-                    <v-img v-bind:src="post.avatar" dark></v-img>
-                  </v-avatar>
-                </template> -->
+                <template v-else-if="post.avatar && node_env == 'production'">
+                  <router-link
+                    :to="'/users/' + post.user_id"
+                    active-class="link--active"
+                    exact
+                    class="link"
+                  >
+                    <v-avatar size="48" class="grey darken-3">
+                      <v-img v-bind:src="process.env.VUE_APP_API_AVATAR_URL + post.avatar" dark></v-img>
+                    </v-avatar>
+                  </router-link>
+                </template>
+              <!--  -->
                 <div class="font-weight-bold">{{ post.user_id }}</div>
                 <v-menu offset-y v-if="currentUserPostsId.indexOf(post.id) != -1">
                   <template v-slot:activator="{on}">
