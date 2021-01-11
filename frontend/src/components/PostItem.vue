@@ -9,7 +9,7 @@
             <v-col class="pa-0">
               <div class="d-flex flex-row align-center">
               <!-- 開発環境 avatar -->
-                <template v-if="post.avatar && node_env !== 'production'">
+                <template v-if="post.avatar && node_env === 'development'">
                   <router-link
                     :to="'/users/' + post.user_id"
                     active-class="link--active"
@@ -17,13 +17,14 @@
                     class="link"
                   >
                     <v-avatar size="48" class="grey darken-3 mr-5">
-                      <v-img v-bind:src="axiosDefaultsBaseURL + '/uploads_development/user/avatar/'+ post.user_id + '/' + post.avatar" dark></v-img>
+                      <!-- <v-img v-bind:src="axiosDefaultsBaseURL + '/uploads_development/user/avatar/'+ post.user_id + '/' + post.avatar" dark></v-img> -->
+                      <v-img v-bind:src="axiosAvatarURL + post.user_id + '/' + post.avatar" dark></v-img>
                     </v-avatar>
                   </router-link>
                 </template>
               <!--  -->
               <!-- 本番環境 avatar -->
-                <template v-else-if="post.avatar && node_env == 'production'">
+                <template v-else-if="post.avatar && node_env === 'production'">
                   <router-link
                     :to="'/users/' + post.user_id"
                     active-class="link--active"
@@ -31,7 +32,7 @@
                     class="link"
                   >
                     <v-avatar size="48" class="grey darken-3 mr-5">
-                      <v-img v-bind:src="axiosProductionAvatarURL + post.avatar" dark></v-img>
+                      <v-img v-bind:src="axiosAvatarURL + post.avatar" dark></v-img>
                     </v-avatar>
                   </router-link>
                 </template>
@@ -86,7 +87,7 @@
           <v-row>
             <v-col class="pa-0">
               <div class="d-flex flex-row align-center">
-                <template v-if="post.avatar && node_env !== 'production'">
+                <template v-if="post.avatar && node_env === 'development'">
                 <!-- 開発環境 -->
                   <router-link
                     :to="'/users/' + post.user_id"
@@ -95,13 +96,14 @@
                     class="link"
                   >
                     <v-avatar size="48" class="grey darken-3 mr-5">
-                      <v-img  v-bind:src="axiosDefaultsBaseURL + '/uploads_development/user/avatar/'+ post.user_id + '/' + post.avatar" dark></v-img>
+                      <!-- <v-img  v-bind:src="axiosDefaultsBaseURL + '/uploads_development/user/avatar/'+ post.user_id + '/' + post.avatar" dark></v-img> -->
+                      <v-img v-bind:src="axiosAvatarURL + post.user_id + '/' + post.avatar" dark></v-img>
                     </v-avatar>
                   </router-link>
                 </template>
               <!--  -->
               <!-- 本番環境 -->
-                <template v-else-if="post.avatar && node_env == 'production'">
+                <template v-else-if="post.avatar && node_env === 'production'">
                   <router-link
                     :to="'/users/' + post.user_id"
                     active-class="link--active"
@@ -109,7 +111,7 @@
                     class="link"
                   >
                     <v-avatar size="48" class="grey darken-3 mr-5">
-                      <v-img v-bind:src="axiosProductionAvatarURL + post.avatar" dark></v-img>
+                      <v-img v-bind:src="axiosAvatarURL + post.avatar" dark></v-img>
                     </v-avatar>
                   </router-link>
                 </template>
@@ -183,7 +185,7 @@ export default {
 
       node_env: process.env.NODE_ENV,
       axiosDefaultsBaseURL: axios.defaults.baseURL,
-      axiosProductionAvatarURL: process.env.VUE_APP_API_AVATAR_URL
+      axiosAvatarURL: process.env.VUE_APP_API_AVATAR_URL
     }
   },
   watch: {

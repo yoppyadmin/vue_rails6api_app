@@ -12,7 +12,7 @@
             </v-avatar>
           </template>
           <template v-else-if="user.avatar && node_env == 'production'">
-            <v-avatar size="128" class="grey darken-3">
+            <v-avatar size="128" class="grey darken-3 mr-5">
               <v-img v-bind:src="user.avatar.url" dark></v-img>
             </v-avatar>
           </template>
