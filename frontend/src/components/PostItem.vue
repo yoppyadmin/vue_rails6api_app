@@ -31,7 +31,7 @@
                     class="link"
                   >
                     <v-avatar size="48" class="grey darken-3">
-                      <v-img v-bind:src="process.env.VUE_APP_API_AVATAR_URL + post.avatar" dark></v-img>
+                      <v-img v-bind:src="axiosProductionAvatarURL + post.avatar" dark></v-img>
                     </v-avatar>
                   </router-link>
                 </template>
@@ -109,7 +109,7 @@
                     class="link"
                   >
                     <v-avatar size="48" class="grey darken-3">
-                      <v-img v-bind:src="process.env.VUE_APP_API_AVATAR_URL + post.avatar" dark></v-img>
+                      <v-img v-bind:src="axiosProductionAvatarURL + post.avatar" dark></v-img>
                     </v-avatar>
                   </router-link>
                 </template>
@@ -183,6 +183,7 @@ export default {
 
       node_env: process.env.NODE_ENV,
       axiosDefaultsBaseURL: axios.defaults.baseURL,
+      axiosProductionAvatarURL: process.env.VUE_APP_API_AVATAR_URL
     }
   },
   watch: {
